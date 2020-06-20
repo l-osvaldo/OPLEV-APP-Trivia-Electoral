@@ -57,12 +57,14 @@ public class PopupBehaviour : MonoBehaviour
     void Start()
     {
         PopupEventManager.Instance.OnPopupClose += OnClosePopup;
+
         _canvasGroup = gameObject.GetComponent<CanvasGroup>();
 
         if (StartEnabled)
         {
             return;
         }
+
         PopupCanvas.SetActive(false);
     }
 
