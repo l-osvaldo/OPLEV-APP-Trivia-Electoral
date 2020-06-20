@@ -503,7 +503,7 @@ MonoBehaviour:
   PopupCanvas: {fileID: 843918652}
   PopupPanel: {fileID: 843918654}
   PopupId: 1
-  StartEnabled: 1
+  StartEnabled: 0
 --- !u!225 &647098264
 CanvasGroup:
   m_ObjectHideFlags: 0
