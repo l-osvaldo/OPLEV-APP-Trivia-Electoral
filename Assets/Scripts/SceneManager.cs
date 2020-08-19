@@ -327,7 +327,7 @@ public class SceneManager : MonoBehaviour
             }
             else
             {
-                m_infoErrorTxt.text = "* No existe coincidencias ";
+                m_infoErrorTxt.text = "* No existen coincidencias";
                 m_municipioInput.ClearOptions();
                 m_municipioInput.interactable = false;
             }
@@ -575,6 +575,8 @@ public class SceneManager : MonoBehaviour
         m_opcion4Btn.GetComponentInChildren<Text>().text = opc[3];
 
         preguntasRestantes.Remove(preguntasRestantes[numeroPregunta]);
+
+        SceneEventManager.Instance?.EnableButtons();
     }
 
     public int NumPreguntaAleatorio(int rango)
@@ -612,13 +614,16 @@ public class SceneManager : MonoBehaviour
     public void Continuar()
     {
         m_respuestaUI.SetActive(false);
+        SceneEventManager.Instance?.DisableButtons();
         if (preguntasRestantes.Count > 0)
         {
-            Preguntas();
+            //Preguntas();
+            Invoke("Preguntas", 1);
         }
         else
         {
-            Resultados();
+            //Resultados();
+            Invoke("Resultados", 2);
         }
 
     }
@@ -704,7 +709,7 @@ public class SceneManager : MonoBehaviour
         {
             m_respuestaTxt.text = "Respuesta Incorrecta";
             contadorErrores++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("<Sprites/incorrecto");
+            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
             bitacoraDeResultados += "I,";
         }
 
