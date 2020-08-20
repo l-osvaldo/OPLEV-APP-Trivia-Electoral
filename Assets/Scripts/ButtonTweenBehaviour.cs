@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class ButtonTweenBehaviour : MonoBehaviour
 {
+    public CanvasGroup Overlay;
     public int DisplayOrder;
 
     private CanvasGroup _canvasGroup;
@@ -38,6 +37,12 @@ public class ButtonTweenBehaviour : MonoBehaviour
 
     void EnableButton()
     {
+        if (Overlay)
+        {
+            LeanTween.alphaCanvas(Overlay, 0, 0);
+            LeanTween.alphaCanvas(Overlay, 1, 0.15f).setFrom(0).setEaseInExpo();
+        }
+
         LeanTween.alphaCanvas(_canvasGroup, 0, 0);
         LeanTween.alphaCanvas(_canvasGroup, 1, 0.15f).setFrom(0).setEaseInExpo().setDelay(_delay);
         LeanTween.scale(gameObject, _startScale, 0);
@@ -46,6 +51,11 @@ public class ButtonTweenBehaviour : MonoBehaviour
 
     void DisableButton()
     {
+        if (Overlay)
+        {
+            LeanTween.alphaCanvas(Overlay, 0, 0.15f).setFrom(1).setEaseInExpo();
+        }
+
         LeanTween.alphaCanvas(_canvasGroup, 0, 0.15f).setFrom(1).setEaseInExpo().setDelay(_delay/2);
         LeanTween.scale(gameObject, _startScale, 0.35f).setFrom(_endScale).setEaseSpring().setDelay(_delay/2);
     }
