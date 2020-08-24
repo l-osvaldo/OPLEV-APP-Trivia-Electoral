@@ -38,11 +38,15 @@ public class SceneManager : MonoBehaviour
 
     [Header("Preguntas")]
     private List<Pregunta> preguntasRestantes = new List<Pregunta>();
+    private float preguntasTotal = 0;
     [SerializeField] private Text m_preguntaTxt = null;
     [SerializeField] private Button m_opcion1Btn = null;
     [SerializeField] private Button m_opcion2Btn = null;
     [SerializeField] private Button m_opcion3Btn = null;
     [SerializeField] private Button m_opcion4Btn = null;
+    [SerializeField] private GameObject m_barraProgreso = null;
+    [SerializeField] private GameObject m_progreso = null;
+    [SerializeField] private Text m_preguntasProgreso = null;
 
     [Header("Respuesta")]
     [SerializeField] private Text m_respuestaTxt = null;
@@ -57,6 +61,10 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Text m_erroresTxt = null;
     [SerializeField] private Text m_totalTxt = null;
 
+    [Header("Perfil")]
+    [SerializeField] private GameObject m_perfilUI = null;
+
+
     private NetworkManager m_networkManager = null;
 
     private void Awake()
@@ -67,6 +75,9 @@ public class SceneManager : MonoBehaviour
     private void Start()
     {        
         ShowLogin();
+
+        m_perfilUI.SetActive(false);
+        LeanTween.scaleX(m_progreso, 0, 0);
     }
 
     // Inicio de vistas -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -148,6 +159,16 @@ public class SceneManager : MonoBehaviour
         //registrarEnDB();
 
         saveResultadosSQLite("FIN");
+    }
+
+    public void ShowProfile()
+    {
+        m_perfilUI.SetActive(true);
+    }
+
+    public void HideProfile()
+    {
+        m_perfilUI.SetActive(false);
     }
 
     // submit -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -327,7 +348,7 @@ public class SceneManager : MonoBehaviour
             }
             else
             {
-                m_infoErrorTxt.text = "* No existe coincidencias ";
+                m_infoErrorTxt.text = "* No existen coincidencias";
                 m_municipioInput.ClearOptions();
                 m_municipioInput.interactable = false;
             }
@@ -508,6 +529,8 @@ public class SceneManager : MonoBehaviour
             preguntasRestantes.Add(preguntas);
         }
         Debug.Log("preguntasRestantes: iPf: " + preguntasRestantes.Count);
+
+        preguntasTotal = preguntasRestantes.Count;
     }
 
     // funciones para las preguntas -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -515,7 +538,7 @@ public class SceneManager : MonoBehaviour
     public void Preguntas()
     {
         // Debug.Log("preguntasRestantes: Preguntas: " + preguntasRestantes.Count);
-        
+
         int numeroPregunta = NumPreguntaAleatorio(preguntasRestantes.Count);
 
         Debug.Log("preguntasRestantes: id: " + preguntasRestantes[numeroPregunta].id);
@@ -524,21 +547,14 @@ public class SceneManager : MonoBehaviour
 
         m_preguntaTxt.text = "¿" + preguntasRestantes[numeroPregunta].pregunta + "?";
 
-        if (preguntasRestantes[numeroPregunta].pregunta.Length >= 100 && preguntasRestantes[numeroPregunta].pregunta.Length <= 160)
+        if (preguntasRestantes[numeroPregunta].pregunta.Length >= 100)
         {
-            m_preguntaTxt.fontSize = 14;
+            m_preguntaTxt.resizeTextForBestFit = true;
         }
         else
         {
-            if (preguntasRestantes[numeroPregunta].pregunta.Length > 160)
-            {
-                m_preguntaTxt.fontSize = 12;
-            }
-            else
-            {
-                m_preguntaTxt.fontSize = 18;
-            }
-                
+            m_preguntaTxt.resizeTextForBestFit = false;
+            m_preguntaTxt.fontSize = 18;
         }            
 
         bitacoraDeResultados += preguntasRestantes[numeroPregunta].id;
@@ -575,6 +591,10 @@ public class SceneManager : MonoBehaviour
         m_opcion4Btn.GetComponentInChildren<Text>().text = opc[3];
 
         preguntasRestantes.Remove(preguntasRestantes[numeroPregunta]);
+
+        SceneEventManager.Instance?.EnableButtons();
+
+        m_preguntasProgreso.text = (preguntasTotal - preguntasRestantes.Count) + "/" + preguntasTotal;
     }
 
     public int NumPreguntaAleatorio(int rango)
@@ -612,13 +632,18 @@ public class SceneManager : MonoBehaviour
     public void Continuar()
     {
         m_respuestaUI.SetActive(false);
+        SceneEventManager.Instance?.DisableButtons();
         if (preguntasRestantes.Count > 0)
         {
-            Preguntas();
+            //Preguntas();
+            Invoke("Preguntas", 1);
         }
         else
         {
-            Resultados();
+            //Resultados();
+            Invoke("Resultados", 2);
+            LeanTween.scaleX(m_progreso, 0, 2).setEaseInBack().setDelay(2);
+            m_barraProgreso.GetComponent<SlideProgressBarBehaviour>().DisableProgressBar();
         }
 
     }
@@ -627,6 +652,8 @@ public class SceneManager : MonoBehaviour
 
     public void RespuestaPreguntaOpcA()
     {
+        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
+        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
 
         if (respuestaCorrecta == m_opcion1Btn.GetComponentInChildren<Text>().text)
         {
@@ -642,12 +669,14 @@ public class SceneManager : MonoBehaviour
             m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
             bitacoraDeResultados += "I,";
         }
-        m_respuestaUI.SetActive(true);
 
+        m_respuestaUI.SetActive(true);
     }
 
     public void RespuestaPreguntaOpcB()
     {
+        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
+        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
 
         if (respuestaCorrecta == m_opcion2Btn.GetComponentInChildren<Text>().text)
         {
@@ -665,11 +694,12 @@ public class SceneManager : MonoBehaviour
         }
 
         m_respuestaUI.SetActive(true);
-
     }
 
     public void RespuestaPreguntaOpcC()
     {
+        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
+        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
 
         if (respuestaCorrecta == m_opcion3Btn.GetComponentInChildren<Text>().text)
         {
@@ -687,11 +717,12 @@ public class SceneManager : MonoBehaviour
         }
 
         m_respuestaUI.SetActive(true);
-
     }
 
     public void RespuestaPreguntaOpcD()
     {
+        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
+        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
 
         if (respuestaCorrecta == m_opcion4Btn.GetComponentInChildren<Text>().text)
         {
@@ -704,12 +735,11 @@ public class SceneManager : MonoBehaviour
         {
             m_respuestaTxt.text = "Respuesta Incorrecta";
             contadorErrores++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("<Sprites/incorrecto");
+            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
             bitacoraDeResultados += "I,";
         }
 
         m_respuestaUI.SetActive(true);
-
     }
 
     // funciones para los resultados -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -757,7 +787,8 @@ public class SceneManager : MonoBehaviour
                         data.Close();
                         resultadoDB.updateResultados2(IDUser.ToString());
                         resultadoDB.updateResultados(IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(), bitacoraDeResultados);
-                    }else
+                    }
+                    else
                     {
                         data.Close();
                         Resultado resultado = new Resultado("0", IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(),

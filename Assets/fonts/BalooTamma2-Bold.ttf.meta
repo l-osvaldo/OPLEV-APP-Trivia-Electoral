@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: eaf754a1424726243b4a59e8eedf87d9
+guid: 6342a7d6286b79e4f9303a4390e68a60
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -8,9 +8,9 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: Komika Boo
+  fontName: Baloo Tamma 2
   fontNames:
-  - Komika Boo
+  - Baloo Tamma 2
   fallbackFontReferences: []
   customCharacters: 
   fontRenderingMode: 0

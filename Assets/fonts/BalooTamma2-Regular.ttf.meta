@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: f3b52522dcbbb5b4ca300c53530bf205
+guid: fcbe763584a97cc40b3b2ec3efa7c3a7
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -8,10 +8,11 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: Planet Benson 2
+  fontName: Baloo Tamma 2
   fontNames:
-  - Planet Benson 2
-  fallbackFontReferences: []
+  - Baloo Tamma 2
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 6342a7d6286b79e4f9303a4390e68a60, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1

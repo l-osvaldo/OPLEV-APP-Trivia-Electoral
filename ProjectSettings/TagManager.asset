@@ -38,6 +38,12 @@ TagManager:
   - 
   - 
   m_SortingLayers:
+  - name: Background
+    uniqueID: 3301843883
+    locked: 0
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Popup
+    uniqueID: 2032542903
     locked: 0
