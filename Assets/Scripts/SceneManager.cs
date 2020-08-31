@@ -18,12 +18,19 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_respuestaUI = null;
     [SerializeField] private GameObject m_resultadosUI = null;
 
+    [SerializeField] private GameObject m_rubrosUI = null;
+    [SerializeField] private GameObject m_subrubroCGUI = null;
+    [SerializeField] private GameObject m_subrubroCPCCUI = null;
+
     [Header("Login")]
     [SerializeField] private Text m_infoLoginTxt = null;
     [SerializeField] private InputField m_emailLoginInput = null;
     [SerializeField] private InputField m_passwordLoginInput = null;
     private int IDUser = 0;
+    private string nombreUsuario = "";
 
+    [Header("Home")]
+    [SerializeField] private Text m_nombreUsuarioTxt = null;
 
     [Header("Register")]
     [SerializeField] private InputField m_nameInput = null;
@@ -36,17 +43,21 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Toggle m_privacidadToggle = null;
     [SerializeField] private Text m_infoErrorTxt = null;
 
-    [Header("Preguntas")]
-    private List<Pregunta> preguntasRestantes = new List<Pregunta>();
-    private float preguntasTotal = 0;
+    [Header("Preguntas")]    
     [SerializeField] private Text m_preguntaTxt = null;
     [SerializeField] private Button m_opcion1Btn = null;
     [SerializeField] private Button m_opcion2Btn = null;
     [SerializeField] private Button m_opcion3Btn = null;
     [SerializeField] private Button m_opcion4Btn = null;
+    [SerializeField] private Toggle m_opcionAToggle = null;
+    [SerializeField] private Toggle m_opcionBToggle = null;
+    [SerializeField] private Toggle m_opcionCToggle = null;
+    [SerializeField] private Toggle m_opcionDToggle = null;
     [SerializeField] private GameObject m_barraProgreso = null;
     [SerializeField] private GameObject m_progreso = null;
     [SerializeField] private Text m_preguntasProgreso = null;
+    private List<Pregunta> comboPreguntas = new List<Pregunta>();
+    private int preguntasTotal = 0;
 
     [Header("Respuesta")]
     [SerializeField] private Text m_respuestaTxt = null;
@@ -120,13 +131,48 @@ public class SceneManager : MonoBehaviour
 
     public void ShowHome()
     {
+        actualizarPreguntas();
+
+        m_nombreUsuarioTxt.text = "Hola, " +  nombreUsuario;
+
         m_registerUI.SetActive(false);
         m_loginUI.SetActive(false);
         m_homeUI.SetActive(true);
         m_questionsUI.SetActive(false);
         m_respuestaUI.SetActive(false);
         m_resultadosUI.SetActive(false);
-        saveResultadosSQLite("INICIO");
+
+        m_rubrosUI.SetActive(true);
+        m_subrubroCGUI.SetActive(false);
+        m_subrubroCPCCUI.SetActive(false);
+        m_questionsUI.SetActive(false);
+
+        //saveResultadosSQLite("INICIO");
+    }
+
+    public void ShowSubrubroCG()
+    {
+        m_rubrosUI.SetActive(false);
+        m_subrubroCGUI.SetActive(true);
+        m_subrubroCPCCUI.SetActive(false);
+        m_questionsUI.SetActive(false);
+    }
+    public void ShowSubrubroCPCC()
+    {
+        m_rubrosUI.SetActive(false);
+        m_subrubroCGUI.SetActive(false);
+        m_subrubroCPCCUI.SetActive(true);
+        m_questionsUI.SetActive(false);
+    }
+
+    public void ShowPreguntas()
+    {
+        m_rubrosUI.SetActive(false);
+        m_subrubroCGUI.SetActive(false);
+        m_subrubroCPCCUI.SetActive(false);
+        m_questionsUI.SetActive(true);
+
+        asignarPregunta();
     }
 
     public void InicioPartida()
@@ -140,7 +186,7 @@ public class SceneManager : MonoBehaviour
         contadorAciertos = 0;
         contadorErrores = 0;
         bitacoraDeResultados = "";
-        Preguntas();
+        //Preguntas();
     }
 
     public void Resultados()
@@ -158,7 +204,7 @@ public class SceneManager : MonoBehaviour
 
         //registrarEnDB();
 
-        saveResultadosSQLite("FIN");
+        //saveResultadosSQLite("FIN");
     }
 
     public void ShowProfile()
@@ -225,8 +271,7 @@ public class SceneManager : MonoBehaviour
         {
             int m_DropdownValue = m_municipioInput.value;
             string textMunicipio = m_municipioInput.options[m_DropdownValue].text;
-            string[] municipioArray = textMunicipio.Split('-');
-            municipio = municipioArray[1].Trim(charsToTrim);
+            municipio = textMunicipio;
         }
         if (m_passwordInput.text == "")
         {
@@ -244,7 +289,7 @@ public class SceneManager : MonoBehaviour
         AppUserDB mAppUserDB = new AppUserDB();
 
         mAppUserDB.addData(new AppUser("0", m_nameInput.text, m_emailInput.text, m_edadInput.text, sexo,
-        municipio, m_passwordInput.text, "NO"));
+        municipio, m_passwordInput.text,"0", "NO"));
 
         mAppUserDB.close();
 
@@ -281,6 +326,7 @@ public class SceneManager : MonoBehaviour
         {
             credenciales = true;
             IDUser = int.Parse(reader[0].ToString());
+            nombreUsuario = reader[1].ToString();
         }
         reader.Close();
         if (credenciales)
@@ -298,7 +344,7 @@ public class SceneManager : MonoBehaviour
                     if (response.message == "Logueado")
                     {
                         IDUser = response.id;
-                        AppUser appUser = new AppUser(response.id.ToString(), "", m_emailLoginInput.text, "", "", "", m_passwordLoginInput.text, "SI");
+                        AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, "", "", "", m_passwordLoginInput.text, "0" ,"SI");
                         mAppUserDB.addData(appUser);
                         mAppUserDB.close();
                         ShowHome();
@@ -338,7 +384,7 @@ public class SceneManager : MonoBehaviour
             while (reader.Read())
             {
                 coincidencias = true;
-                m_DropOptions.Add(reader[0].ToString() + " - " + reader[3].ToString());
+                m_DropOptions.Add(reader[0].ToString());
             }
 
             if (coincidencias)
@@ -377,10 +423,11 @@ public class SceneManager : MonoBehaviour
             while (reader.Read())
             {
                 string nombre = reader[1].ToString();
-                string email = reader[2].ToString();
+                string email = reader[2].ToString();                
                 string pass = reader[6].ToString();
+                int score = int.Parse(reader[7].ToString());
                 m_networkManager.CreateUserApp(reader[1].ToString(), reader[2].ToString(), int.Parse(reader[3].ToString()),
-                    reader[4].ToString(), reader[5].ToString(), reader[6].ToString(), delegate (Response response)
+                    reader[4].ToString(), reader[5].ToString(), reader[6].ToString(), score, delegate (Response response)
                     {
                         if (response.message == "Usuario Registrado")
                         {
@@ -409,145 +456,180 @@ public class SceneManager : MonoBehaviour
 
     // funciones para el home -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
-    public void cargarPreguntas()
+    public void actualizarPreguntas()
     {
-        preguntasRestantes.Clear();
-
-        Debug.Log("preguntasRestantes: cP: " + preguntasRestantes.Count);
-
         PreguntaDB mPreguntaDB = new PreguntaDB();
 
         IDataReader reader = mPreguntaDB.countPreguntas();
 
-        // Debug.Log(reader[0].ToString());
+        int countPreguntas = int.Parse(reader[0].ToString());
 
-        int registrosPreguntas = int.Parse(reader[0].ToString());
-
-        if (registrosPreguntas == 0)
+        if (m_networkManager.verifyInternetAccess())
         {
-            mPreguntaDB.deleteTable();
-            Pregunta pregunta = new Pregunta("1", 
-                "El sistema electoral mexicano a nivel federal lo integran", 
-                "Respuesta incorrecta",
-                "Respuesta correcta", 
-                "Respuesta incorrecta", 
-                "Respuesta incorrecta", 
-                "b");
-            mPreguntaDB.addData(pregunta);
-            Pregunta pregunta02 = new Pregunta("2",
-                "El Poder Ejecutivo a nivel Federal es ejercido por",
-                "Respuesta incorrecta",
-                "Respuesta incorrecta",
-                "Respuesta correcta",
-                "Respuesta incorrecta", 
-                "c");
-            mPreguntaDB.addData(pregunta02);
-            Pregunta pregunta03 = new Pregunta("3",
-                "El Poder Legislativo a nivel Federal es ejercido por",
-                "Respuesta correcta",
-                "Respuesta incorrecta",
-                "Respuesta incorrecta",
-                "Respuesta incorrecta",
-                "a");
-            mPreguntaDB.addData(pregunta03);
-            Pregunta pregunta04 = new Pregunta("4",
-                "Es un medio de impugnación en contra de actos de autoridades administrativas electorales, que podrá ser interpuesto por un partido político, coalición, candidatura independiente a través de sus representantes legítimos, o candidato independiente de manera individual",
-                "Respuesta incorrecta",
-                "Respuesta correcta",
-                "Respuesta incorrecta",
-                "Respuesta incorrecta",
-                "b");
-            mPreguntaDB.addData(pregunta04);
-            Pregunta pregunta05 = new Pregunta("5",
-                "Cuál de las siguientes opciones es un derecho de los partidos políticos",
-                "Respuesta incorrecta",
-                "Respuesta incorrecta",
-                "Respuesta incorrecta",
-                "Respuesta correcta",
-                "d");
-            mPreguntaDB.addData(pregunta05);
-
-            reader = mPreguntaDB.getAllPreguntas();
-            iniciarPreguntas(reader);
-
-            mPreguntaDB.close();
-            reader.Close();
-        }
-        else
-        {
-            if (m_networkManager.verifyInternetAccess())
+            m_networkManager.allPreguntas(delegate (Preguntas preguntas)
             {
-                m_networkManager.allPreguntas(delegate (Preguntas preguntas)
+                if (countPreguntas == 0)
                 {
-                    // Debug.Log("WS preguntas: " + preguntas.pregunta.Count);
-                    if (registrosPreguntas != preguntas.pregunta.Count)
+                    for (int i = 0; i < preguntas.pregunta.Count; i++)
+                    {
+                        Pregunta pre = new Pregunta(preguntas.pregunta[i].id, preguntas.pregunta[i].pregunta,
+                            preguntas.pregunta[i].opcion_a, preguntas.pregunta[i].opcion_b, preguntas.pregunta[i].opcion_c,
+                            preguntas.pregunta[i].opcion_d, preguntas.pregunta[i].respuesta, preguntas.pregunta[i].rubro,
+                            preguntas.pregunta[i].subrubro, preguntas.pregunta[i].etiquetas, preguntas.pregunta[i].version);
+                        mPreguntaDB.addData(pre);
+                    }
+                    mPreguntaDB.close();
+                }
+                else
+                {
+                    reader = mPreguntaDB.versionPreguntas();
+
+                    int versionApp = int.Parse(reader[0].ToString());
+                    int versionDB = int.Parse(preguntas.pregunta[0].version);
+                    reader.Close();
+
+                    if (versionApp < versionDB)
                     {
                         mPreguntaDB.deleteTable();
                         for (int i = 0; i < preguntas.pregunta.Count; i++)
                         {
-                            // Debug.Log(preguntas.pregunta[i].id);
                             Pregunta pre = new Pregunta(preguntas.pregunta[i].id, preguntas.pregunta[i].pregunta,
                                 preguntas.pregunta[i].opcion_a, preguntas.pregunta[i].opcion_b, preguntas.pregunta[i].opcion_c,
-                                preguntas.pregunta[i].opcion_d, preguntas.pregunta[i].respuesta);
+                                preguntas.pregunta[i].opcion_d, preguntas.pregunta[i].respuesta, preguntas.pregunta[i].rubro,
+                                preguntas.pregunta[i].subrubro, preguntas.pregunta[i].etiquetas, preguntas.pregunta[i].version);
                             mPreguntaDB.addData(pre);
                         }
-                        reader = mPreguntaDB.getAllPreguntas();
-                        iniciarPreguntas(reader);
-
-                        mPreguntaDB.close();
-                        reader.Close();
                     }
-                    else
-                    {
-                        reader = mPreguntaDB.getAllPreguntas();
-                        iniciarPreguntas(reader);
-
-                        mPreguntaDB.close();
-                        reader.Close();
-                    }
-                });
-            }
-            else
-            {
-                reader = mPreguntaDB.getAllPreguntas();
-                iniciarPreguntas(reader);
-
-                mPreguntaDB.close();
-                reader.Close();
-            }
+                    mPreguntaDB.close();
+                }
+            });
         }
-    }
-
-    public void iniciarPreguntas(IDataReader reader)
-    {
-        Debug.Log("preguntasRestantes: iPi: " + preguntasRestantes.Count);
-
-        while (reader.Read())
+        else
         {
-            Pregunta preguntas = new Pregunta(reader[0].ToString(), reader[1].ToString(), reader[2].ToString(), reader[3].ToString(),
-                reader[4].ToString(), reader[5].ToString(), reader[6].ToString());
-            preguntasRestantes.Add(preguntas);
-        }
-        Debug.Log("preguntasRestantes: iPf: " + preguntasRestantes.Count);
+            if (countPreguntas == 0)
+            {
+                string path = Path.Combine(Application.streamingAssetsPath, "Json");
+                path = Path.Combine(path, "preguntasPredeterminadas.txt");
 
-        preguntasTotal = preguntasRestantes.Count;
+                Debug.Log(path);
+
+                string json = "";
+
+                if (path.Contains("://") || path.Contains(":///"))
+                {
+                    UnityWebRequest file = UnityWebRequest.Get(path);
+                    file.SendWebRequest();
+                    while (!file.isDone) { }
+                    json = file.downloadHandler.text;
+                }
+                else
+                {
+                    json = File.ReadAllText(path);
+                }
+
+                json = json.Remove(0, 1);
+                json = json.Remove(json.Length - 1, 1);
+
+                string[] preguntasPredeterminadasJSON = json.Split('{');
+
+                for (int i = 0; i < preguntasPredeterminadasJSON.Length; i++)
+                {
+                    if (preguntasPredeterminadasJSON[i].Length > 0)
+                    {
+                        preguntasPredeterminadasJSON[i] = "{" + preguntasPredeterminadasJSON[i];
+
+                        if (preguntasPredeterminadasJSON[i].Substring(preguntasPredeterminadasJSON[i].Length - 1, 1) == ",")
+                        {
+                            preguntasPredeterminadasJSON[i] = preguntasPredeterminadasJSON[i].Remove(preguntasPredeterminadasJSON[i].Length - 1, 1);
+                        }
+
+                        Pregunta pregunta = JsonUtility.FromJson<Pregunta>(preguntasPredeterminadasJSON[i]);
+
+                        mPreguntaDB.addData(pregunta);
+
+                    }
+                }
+            }
+            mPreguntaDB.close();
+        }
     }
 
-    // funciones para las preguntas -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-    public void Preguntas()
+    public void rubroUnoSubrubroUno()
     {
-        // Debug.Log("preguntasRestantes: Preguntas: " + preguntasRestantes.Count);
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos generales", "Constitución (CPEUM)");
+    }
 
-        int numeroPregunta = NumPreguntaAleatorio(preguntasRestantes.Count);
+    public void rubroUnoSubrubroDos()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos generales", "LGIPE");
+    }
 
-        Debug.Log("preguntasRestantes: id: " + preguntasRestantes[numeroPregunta].id);
+    public void rubroUnoSubrubroTres()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos generales", "LGPP");
+    }
 
-        Debug.Log("preguntasRestantes: length: " + preguntasRestantes[numeroPregunta].pregunta.Length);
+    public void rubroUnoSubrubroCuatro()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos generales", "Constitución de Veracruz");
+    }
 
-        m_preguntaTxt.text = "¿" + preguntasRestantes[numeroPregunta].pregunta + "?";
+    public void rubroUnoSubrubroCinco()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos generales", "Código Electoral del Estado de Veracruz");
+    }
 
-        if (preguntasRestantes[numeroPregunta].pregunta.Length >= 100)
+    public void rubroDosSubrubroUno()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Presidenta(e) del Consejo Distrital");
+    }
+
+    public void rubroDosSubrubroDos()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Consejera(o) del Consejo Distrital");
+    }
+
+    public void rubroDosSubrubroTres()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Secretaria(o) del Consejo Distrital");
+    }
+
+    public void rubroDosSubrubroCuatro()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Vocales");
+    }
+
+    public void filtroPorRubroAndSubrubroPreguntas(string rubro, string subrubro)
+    {
+        comboPreguntas.Clear();
+
+        Debug.Log(rubro + " - " + subrubro);
+
+        PreguntaDB preguntaDB = new PreguntaDB();
+
+        IDataReader dataReader = preguntaDB.filtroPorRubroAndSubrubroPreguntas(rubro, subrubro);
+
+        while (dataReader.Read())
+        {
+            Debug.Log(dataReader[1].ToString() + " - " );
+            Pregunta pregunta = new Pregunta(dataReader[0].ToString(), dataReader[1].ToString(), dataReader[2].ToString(), dataReader[3].ToString(),
+                dataReader[4].ToString(), dataReader[5].ToString(), dataReader[6].ToString(),"","","","");
+            comboPreguntas.Add(pregunta);
+        }
+        preguntasTotal = comboPreguntas.Count;
+
+        ShowPreguntas();
+    }
+
+    public void asignarPregunta()
+    {
+        int numeroPregunta = NumPreguntaAleatorio(comboPreguntas.Count);
+
+        Debug.Log(numeroPregunta);
+
+        m_preguntaTxt.text = "¿" + comboPreguntas[numeroPregunta].pregunta + "?";
+
+        if (comboPreguntas[numeroPregunta].pregunta.Length >= 100)
         {
             m_preguntaTxt.resizeTextForBestFit = true;
         }
@@ -555,51 +637,51 @@ public class SceneManager : MonoBehaviour
         {
             m_preguntaTxt.resizeTextForBestFit = false;
             m_preguntaTxt.fontSize = 18;
-        }            
-
-        bitacoraDeResultados += preguntasRestantes[numeroPregunta].id;
-
-        respuestaCorrecta = preguntasRestantes[numeroPregunta].respuesta;
-
-        if (respuestaCorrecta == "a")
-        {
-            respuestaCorrecta = preguntasRestantes[numeroPregunta].opcion_a;
-        }
-        if (respuestaCorrecta == "b")
-        {
-            respuestaCorrecta = preguntasRestantes[numeroPregunta].opcion_b;
-        }
-        if (respuestaCorrecta == "c")
-        {
-            respuestaCorrecta = preguntasRestantes[numeroPregunta].opcion_c;
-        }
-        if (respuestaCorrecta == "d")
-        {
-            respuestaCorrecta = preguntasRestantes[numeroPregunta].opcion_d;
         }
 
-        string[] opc = { preguntasRestantes[numeroPregunta].opcion_a,
-                            preguntasRestantes[numeroPregunta].opcion_b,
-                            preguntasRestantes[numeroPregunta].opcion_c,
-                            preguntasRestantes[numeroPregunta].opcion_d};
+        bitacoraDeResultados += comboPreguntas[numeroPregunta].id;
+
+        respuestaCorrecta = comboPreguntas[numeroPregunta].respuesta;
+
+        //if (respuestaCorrecta == "a")
+        //{
+        //    respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_a;
+        //}
+        //if (respuestaCorrecta == "b")
+        //{
+        //    respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_b;
+        //}
+        //if (respuestaCorrecta == "c")
+        //{
+        //    respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_c;
+        //}
+        //if (respuestaCorrecta == "d")
+        //{
+        //    respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_d;
+        //}
+
+        string[] opc = { comboPreguntas[numeroPregunta].opcion_a,
+                                comboPreguntas[numeroPregunta].opcion_b,
+                                comboPreguntas[numeroPregunta].opcion_c,
+                                comboPreguntas[numeroPregunta].opcion_d};
 
         OrdenarRespuestas(opc);
 
-        m_opcion1Btn.GetComponentInChildren<Text>().text = opc[0];
-        m_opcion2Btn.GetComponentInChildren<Text>().text = opc[1];
-        m_opcion3Btn.GetComponentInChildren<Text>().text = opc[2];
-        m_opcion4Btn.GetComponentInChildren<Text>().text = opc[3];
+        m_opcionAToggle.GetComponentInChildren<Text>().text = opc[0];
+        m_opcionBToggle.GetComponentInChildren<Text>().text = opc[1];
+        m_opcionCToggle.GetComponentInChildren<Text>().text = opc[2];
+        m_opcionDToggle.GetComponentInChildren<Text>().text = opc[3];
 
-        preguntasRestantes.Remove(preguntasRestantes[numeroPregunta]);
+        comboPreguntas.Remove(comboPreguntas[numeroPregunta]);
 
         SceneEventManager.Instance?.EnableButtons();
 
-        m_preguntasProgreso.text = (preguntasTotal - preguntasRestantes.Count) + "/" + preguntasTotal;
+        m_preguntasProgreso.text = (preguntasTotal - comboPreguntas.Count) + "/" + preguntasTotal;
     }
 
     public int NumPreguntaAleatorio(int rango)
     {
-        //Debug.Log(rango);
+        Debug.Log(rango);
         if (rango > 1)
         {
             var seed = Environment.TickCount;
@@ -629,228 +711,23 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    public void Continuar()
+    public void enviarRespuesta()
     {
-        m_respuestaUI.SetActive(false);
-        SceneEventManager.Instance?.DisableButtons();
-        if (preguntasRestantes.Count > 0)
+        if (m_opcionAToggle.isOn)
         {
-            //Preguntas();
-            Invoke("Preguntas", 1);
+            Debug.Log("A");
         }
-        else
+        if (m_opcionBToggle.isOn)
         {
-            //Resultados();
-            Invoke("Resultados", 2);
-            LeanTween.scaleX(m_progreso, 0, 2).setEaseInBack().setDelay(2);
-            m_barraProgreso.GetComponent<SlideProgressBarBehaviour>().DisableProgressBar();
+            Debug.Log("B");
         }
-
-    }
-
-    // funciones para las respuestas -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-    public void RespuestaPreguntaOpcA()
-    {
-        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
-        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
-
-        if (respuestaCorrecta == m_opcion1Btn.GetComponentInChildren<Text>().text)
+        if (m_opcionCToggle.isOn)
         {
-            m_respuestaTxt.text = "Respuesta Correcta";
-            contadorAciertos++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/correcto");
-            bitacoraDeResultados += "C,";
+            Debug.Log("C");
         }
-        else
+        if (m_opcionDToggle.isOn)
         {
-            m_respuestaTxt.text = "Respuesta Incorrecta";
-            contadorErrores++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
-            bitacoraDeResultados += "I,";
-        }
-
-        m_respuestaUI.SetActive(true);
-    }
-
-    public void RespuestaPreguntaOpcB()
-    {
-        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
-        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
-
-        if (respuestaCorrecta == m_opcion2Btn.GetComponentInChildren<Text>().text)
-        {
-            m_respuestaTxt.text = "Respuesta Correcta";
-            contadorAciertos++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/correcto");
-            bitacoraDeResultados += "C,";
-        }
-        else
-        {
-            m_respuestaTxt.text = "Respuesta Incorrecta";
-            contadorErrores++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
-            bitacoraDeResultados += "I,";
-        }
-
-        m_respuestaUI.SetActive(true);
-    }
-
-    public void RespuestaPreguntaOpcC()
-    {
-        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
-        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
-
-        if (respuestaCorrecta == m_opcion3Btn.GetComponentInChildren<Text>().text)
-        {
-            m_respuestaTxt.text = "Respuesta Correcta";
-            contadorAciertos++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/correcto");
-            bitacoraDeResultados += "C,";
-        }
-        else
-        {
-            m_respuestaTxt.text = "Respuesta Incorrecta";
-            contadorErrores++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
-            bitacoraDeResultados += "I,";
-        }
-
-        m_respuestaUI.SetActive(true);
-    }
-
-    public void RespuestaPreguntaOpcD()
-    {
-        float progressScale = 1 - ((float)preguntasRestantes.Count / 10);
-        LeanTween.scaleX(m_progreso, progressScale, 0.25f).setEaseInOutBack();
-
-        if (respuestaCorrecta == m_opcion4Btn.GetComponentInChildren<Text>().text)
-        {
-            m_respuestaTxt.text = "Respuesta Correcta";
-            contadorAciertos++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/correcto");
-            bitacoraDeResultados += "C,";
-        }
-        else
-        {
-            m_respuestaTxt.text = "Respuesta Incorrecta";
-            contadorErrores++;
-            m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
-            bitacoraDeResultados += "I,";
-        }
-
-        m_respuestaUI.SetActive(true);
-    }
-
-    // funciones para los resultados -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
-
-    public async void saveResultadosSQLite(string modo)
-    {
-        // Debug.Log(bitacoraDeResultados);
-        // Debug.Log(IDUser);
-
-        ResultadoDB resultadoDB = new ResultadoDB();
-
-        if (IDUser != 0)
-        { 
-
-            if (modo == "INICIO")
-            {
-                IDataReader reader = resultadoDB.existeRegistroResultado(IDUser.ToString(), "NO");
-
-                if (reader[0].ToString() == "0")
-                {
-                    reader = resultadoDB.existeRegistroResultado2("0");
-
-                    if (reader[0].ToString() != "0")
-                    {
-                        resultadoDB.updateResultados2(IDUser.ToString());
-                    }
-                }
-                reader.Close();
-            }
-            else
-            {
-                IDataReader reader = resultadoDB.existeRegistroResultado2(IDUser.ToString());
-
-                if (reader[0].ToString() != "0")
-                {
-                    reader.Close();
-                    resultadoDB.updateResultados(IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(), bitacoraDeResultados);
-                }
-                else
-                {
-                    IDataReader data = resultadoDB.existeRegistroResultado2("0");
-
-                    if (data[0].ToString() != "0")
-                    {
-                        data.Close();
-                        resultadoDB.updateResultados2(IDUser.ToString());
-                        resultadoDB.updateResultados(IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(), bitacoraDeResultados);
-                    }
-                    else
-                    {
-                        data.Close();
-                        Resultado resultado = new Resultado("0", IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(),
-                                            bitacoraDeResultados, "NO");
-                        resultadoDB.addData(resultado);
-                    }
-                }
-            }
-
-            IDataReader dataReader = resultadoDB.registradoResultado(IDUser.ToString(), "NO");
-
-            while (dataReader.Read())
-            {
-                Resultado resultado = new Resultado(dataReader[0].ToString(), dataReader[1].ToString(), dataReader[2].ToString(),
-                    dataReader[3].ToString(), dataReader[4].ToString(), dataReader[5].ToString());
-
-                saveResultadosWS(resultado, IDUser.ToString());
-            }
-            dataReader.Close();
-        }
-        else
-        {
-            if (modo == "FIN")
-            {
-                registrarEnDB();
-
-                await Task.Delay(3000);
-
-                IDataReader data = resultadoDB.existeRegistroResultado2("0");
-                if (data[0].ToString() != "0")
-                {
-                    data.Close();
-                    resultadoDB.updateResultados(IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(), bitacoraDeResultados);
-                }
-                else
-                {
-                    data.Close();
-                    Resultado resultado = new Resultado("0", IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(),
-                                        bitacoraDeResultados, "NO");
-                    resultadoDB.addData(resultado);
-                }
-
-            }
-        }
-
-        resultadoDB.close();
-        cargarPreguntas();
-    }
-
-    public void saveResultadosWS(Resultado resultado, string id_user_app)
-    {
-        if (m_networkManager.verifyInternetAccess())
-        {
-            ResultadoDB resultadoDB = new ResultadoDB();
-
-            m_networkManager.SaveResultados(resultado, delegate (Resultado resultadoWS)
-            {
-                resultadoDB.updateResultadoWS(id_user_app, resultadoWS.id.ToString(), "SI");
-                resultadoDB.close();
-            });
-            
-
+            Debug.Log("D");
         }
     }
 
@@ -866,17 +743,11 @@ public class SceneManager : MonoBehaviour
 
     public void iniciarMunicipios()
     {
-
-        Debug.Log("IniciarMunicipios");
-
         MunicipioDB municipioDB = new MunicipioDB();
 
         IDataReader reader = municipioDB.countMunicipios();
 
-
         int registrosMunicipios = int.Parse(reader[0].ToString());
-
-        Debug.Log("Municipios: " + registrosMunicipios);
 
         if (registrosMunicipios == 0)
         {
@@ -905,9 +776,6 @@ public class SceneManager : MonoBehaviour
                 json = File.ReadAllText(path);
             }
 
-           
-            Debug.Log("MunicipiosJson: " + json);
-
             json = json.Remove(0, 1);
             json = json.Remove(json.Length - 1, 1);
 
@@ -933,9 +801,8 @@ public class SceneManager : MonoBehaviour
                 }
             }
             municipioDB.close();
-            //Debug.Log(json);
             
-        }
+        }        
     }
 
     public void BackHome()

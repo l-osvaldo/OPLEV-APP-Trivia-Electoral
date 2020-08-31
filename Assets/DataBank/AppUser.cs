@@ -8,25 +8,27 @@ namespace DataBank
     public class AppUser
     {
 
-        public string _id;
-        public string _nombre;
-        public string _email;
-        public string _edad;
-        public string _sexo;
-        public string _municipio;
-        public string _password;
-        public string _registrado;
+        public string id;
+        public string nombre;
+        public string email;
+        public string edad;
+        public string sexo;
+        public string municipio;
+        public string password;
+        public string score;
+        public string registrado;
 
-        public AppUser(string id, string nombre, string email, string edad, string sexo, string municipio, string password, string registrado)
+        public AppUser(string id, string nombre, string email, string edad, string sexo, string municipio, string password, string score, string registrado)
         {
-            _id = id;
-            _nombre = nombre;
-            _email = email;
-            _edad = edad;
-            _sexo = sexo;
-            _municipio = municipio;
-            _password = password;
-            _registrado = registrado;
+            this.id = id;
+            this.nombre = nombre;
+            this.email = email;
+            this.edad = edad;
+            this.sexo = sexo;
+            this.municipio = municipio;
+            this.password = password;
+            this.score = score;
+            this.registrado = registrado;
         }
 
     }

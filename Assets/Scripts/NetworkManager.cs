@@ -21,12 +21,12 @@ public class NetworkManager : MonoBehaviour
         }        
     }
 
-    public void CreateUserApp(string nombre, string email, int edad, string sexo, string municipio, string password, Action<Response> response)
+    public void CreateUserApp(string nombre, string email, int edad, string sexo, string municipio, string password, int score, Action<Response> response)
     {
-        StartCoroutine(CO_CreateUser(nombre, email, edad, sexo, municipio, password, response));
+        StartCoroutine(CO_CreateUser(nombre, email, edad, sexo, municipio, password, score, response));
     }
 
-    private IEnumerator CO_CreateUser(string nombre, string email, int edad, string sexo, string municipio, string password, Action<Response> response)
+    private IEnumerator CO_CreateUser(string nombre, string email, int edad, string sexo, string municipio, string password, int score, Action<Response> response)
     {
         WWWForm form = new WWWForm();
 
@@ -36,6 +36,7 @@ public class NetworkManager : MonoBehaviour
         form.AddField("sexo", sexo);
         form.AddField("municipio", municipio);
         form.AddField("password", password);
+        form.AddField("score", score);
 
         UnityWebRequest ws = UnityWebRequest.Post("http://test.oplever.org.mx/triviasw/api/ws/registrarUsuarioApp",form);
 
@@ -171,6 +172,7 @@ public class Response
     public bool done = false;
     public string message = "";
     public int id = 0;
+    public string nombre = "";
 }
 
 

@@ -30,6 +30,8 @@ namespace DataBank
             db_connection.Close();
         }
 
+        //AppUserDB *********************************************************
+
         public virtual IDataReader getDataByEmailAndPassword(string email, string password)
         {
             Debug.Log(CodistanTag + "This function is not implemnted");
@@ -54,6 +56,8 @@ namespace DataBank
             throw null;
         }
 
+        //PreguntasDB *********************************************************
+
         public virtual IDataReader countPreguntas()
         {
             Debug.Log(CodistanTag + "This function is not implemnted");
@@ -71,6 +75,20 @@ namespace DataBank
             Debug.Log(CodistanTag + "This function is not implemnted");
             throw null;
         }
+
+        public virtual IDataReader versionPreguntas()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader filtroPorRubroAndSubrubroPreguntas(string rubro, string subrubro)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        //MunicipiosDB *********************************************************
 
         public virtual IDataReader countMunicipios()
         {
