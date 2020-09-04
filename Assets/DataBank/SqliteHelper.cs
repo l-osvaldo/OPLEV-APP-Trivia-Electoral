@@ -56,6 +56,12 @@ namespace DataBank
             throw null;
         }
 
+        public virtual void actualizarScore(string score, string id)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
         //PreguntasDB *********************************************************
 
         public virtual IDataReader countPreguntas()
@@ -83,6 +89,12 @@ namespace DataBank
         }
 
         public virtual IDataReader filtroPorRubroAndSubrubroPreguntas(string rubro, string subrubro)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader filtroPorTemaPreguntas(string tema)
         {
             Debug.Log(CodistanTag + "This function is not implemnted");
             throw null;

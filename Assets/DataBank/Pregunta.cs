@@ -18,8 +18,10 @@ namespace DataBank
         public string subrubro;
         public string etiquetas;
         public string version;
+        public string numero_respuestas;
 
-        public Pregunta(string id, string pregunta, string opc_a, string opc_b, string opc_c, string opc_d, string respuesta, string rubro, string subrubro, string etiquetas, string version)
+        public Pregunta(string id, string pregunta, string opc_a, string opc_b, string opc_c, string opc_d, string respuesta, 
+            string rubro, string subrubro, string etiquetas, string version, string numero_respuestas)
         {
             this.id = id;
             this.pregunta = pregunta;
@@ -32,6 +34,7 @@ namespace DataBank
             this.subrubro = subrubro;
             this.etiquetas = etiquetas;
             this.version = version;
+            this.numero_respuestas = numero_respuestas;
         }
 
     }

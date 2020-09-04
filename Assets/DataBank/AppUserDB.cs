@@ -110,7 +110,14 @@ namespace DataBank
            dbcmd.ExecuteNonQuery();
         }
 
-        
+        public override void actualizarScore(string score, string id)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "UPDATE " + TABLE_NAME + " SET " + KEY_SCORE + " = '" + score
+                + "' WHERE " + KEY_ID + " = '" + id + "'";
+            dbcmd.ExecuteNonQuery();
+        }
 
     }
 }
