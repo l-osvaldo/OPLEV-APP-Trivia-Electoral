@@ -17,8 +17,10 @@ namespace DataBank
         public string password;
         public string score;
         public string registrado;
+        public string status;
 
-        public AppUser(string id, string nombre, string email, string edad, string sexo, string municipio, string password, string score, string registrado)
+
+        public AppUser(string id, string nombre, string email, string edad, string sexo, string municipio, string password, string score, string registrado, string status)
         {
             this.id = id;
             this.nombre = nombre;
@@ -29,6 +31,7 @@ namespace DataBank
             this.password = password;
             this.score = score;
             this.registrado = registrado;
+            this.status = status;
         }
 
     }

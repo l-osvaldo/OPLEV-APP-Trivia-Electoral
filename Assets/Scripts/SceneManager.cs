@@ -26,6 +26,9 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_statusUI = null;
     [SerializeField] private GameObject m_buscarUI = null;
 
+    [SerializeField] private GameObject m_opc3UI = null;
+    [SerializeField] private GameObject m_opc4UI = null;
+
     [Header("Login")]
     [SerializeField] private Text m_infoLoginTxt = null;
     [SerializeField] private InputField m_emailLoginInput = null;
@@ -325,7 +328,7 @@ public class SceneManager : MonoBehaviour
         AppUserDB mAppUserDB = new AppUserDB();
 
         mAppUserDB.addData(new AppUser("0", m_nameInput.text, m_emailInput.text, m_edadInput.text, sexo,
-        municipio, m_passwordInput.text,"0", "NO"));
+        municipio, m_passwordInput.text,"0", "NO","1"));
 
         mAppUserDB.close();
 
@@ -385,7 +388,8 @@ public class SceneManager : MonoBehaviour
                         IDUser = response.id;
                         nombreUsuario = response.nombre.ToString();
                         score = 0;
-                        AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, "", "", "", m_passwordLoginInput.text, "0" ,"SI");
+                        AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
+                            response.sexo, response.municipio, m_passwordLoginInput.text, response.score.ToString() ,"SI", response.status.ToString());
                         mAppUserDB.addData(appUser);
                         mAppUserDB.close();
                         nivelInicio();
@@ -469,7 +473,7 @@ public class SceneManager : MonoBehaviour
                 string pass = reader[6].ToString();
                 int score = int.Parse(reader[7].ToString());
                 m_networkManager.CreateUserApp(reader[1].ToString(), reader[2].ToString(), int.Parse(reader[3].ToString()),
-                    reader[4].ToString(), reader[5].ToString(), reader[6].ToString(), score, delegate (Response response)
+                    reader[4].ToString(), reader[5].ToString(), reader[6].ToString(), int.Parse(reader[7].ToString()), delegate (Response response)
                     {
                         if (response.message == "Usuario Registrado")
                         {
@@ -684,6 +688,10 @@ public class SceneManager : MonoBehaviour
             m_preguntaTxt.fontSize = 18;
         }
 
+        string numeroRespuestas = comboPreguntas[numeroPregunta].numero_respuestas;
+
+
+
         bitacoraDeResultados += comboPreguntas[numeroPregunta].id;
 
         respuestaCorrecta = comboPreguntas[numeroPregunta].respuesta;
@@ -696,26 +704,75 @@ public class SceneManager : MonoBehaviour
         {
             respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_b;
         }
-        if (respuestaCorrecta == "c")
-        {
-            respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_c;
-        }
-        if (respuestaCorrecta == "d")
-        {
-            respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_d;
-        }
 
-        string[] opc = { comboPreguntas[numeroPregunta].opcion_a,
+        if (numeroRespuestas == "3")
+        {
+            if (respuestaCorrecta == "c")
+            {
+                respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_c;
+            }
+        }
+        
+        if (numeroRespuestas == "4")
+        {
+            if (respuestaCorrecta == "c")
+            {
+                respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_c;
+            }
+
+            if (respuestaCorrecta == "d")
+            {
+                respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_d;
+            }
+        }
+        switch (numeroRespuestas)
+        {
+            case "2":
+                string[] opc = { comboPreguntas[numeroPregunta].opcion_a,
+                                comboPreguntas[numeroPregunta].opcion_b};
+
+                OrdenarRespuestas(opc);
+
+                m_opcionAToggle.GetComponentInChildren<Text>().text = opc[0];
+                m_opcionBToggle.GetComponentInChildren<Text>().text = opc[1];
+
+                m_opc3UI.SetActive(false);
+                m_opc4UI.SetActive(false);
+
+                break;
+            case "3":
+                string[] opc2 = { comboPreguntas[numeroPregunta].opcion_a,
+                                comboPreguntas[numeroPregunta].opcion_b,
+                                comboPreguntas[numeroPregunta].opcion_c};
+
+                OrdenarRespuestas(opc2);
+
+                m_opcionAToggle.GetComponentInChildren<Text>().text = opc2[0];
+                m_opcionBToggle.GetComponentInChildren<Text>().text = opc2[1];
+                m_opcionCToggle.GetComponentInChildren<Text>().text = opc2[2];
+
+                m_opc3UI.SetActive(true);
+                m_opc4UI.SetActive(false);
+
+                break;
+            case "4":
+                string[] opc3 = { comboPreguntas[numeroPregunta].opcion_a,
                                 comboPreguntas[numeroPregunta].opcion_b,
                                 comboPreguntas[numeroPregunta].opcion_c,
                                 comboPreguntas[numeroPregunta].opcion_d};
 
-        OrdenarRespuestas(opc);
+                OrdenarRespuestas(opc3);
 
-        m_opcionAToggle.GetComponentInChildren<Text>().text = opc[0];
-        m_opcionBToggle.GetComponentInChildren<Text>().text = opc[1];
-        m_opcionCToggle.GetComponentInChildren<Text>().text = opc[2];
-        m_opcionDToggle.GetComponentInChildren<Text>().text = opc[3];
+                m_opcionAToggle.GetComponentInChildren<Text>().text = opc3[0];
+                m_opcionBToggle.GetComponentInChildren<Text>().text = opc3[1];
+                m_opcionCToggle.GetComponentInChildren<Text>().text = opc3[2];
+                m_opcionDToggle.GetComponentInChildren<Text>().text = opc3[3];
+
+                m_opc3UI.SetActive(true);
+                m_opc4UI.SetActive(true);
+
+                break;
+        }
 
         comboPreguntas.Remove(comboPreguntas[numeroPregunta]);
 

@@ -173,6 +173,13 @@ public class Response
     public string message = "";
     public int id = 0;
     public string nombre = "";
+    public string email = "";
+    public int edad = 0;
+    public string sexo = "";
+    public string municipio = "";
+    public string password = "";
+    public int score = 0;
+    public int status = 0;
 }
 
 
