@@ -57,10 +57,6 @@ public class SceneManager : MonoBehaviour
 
     [Header("Preguntas")]    
     [SerializeField] private Text m_preguntaTxt = null;
-    [SerializeField] private Button m_opcion1Btn = null;
-    [SerializeField] private Button m_opcion2Btn = null;
-    [SerializeField] private Button m_opcion3Btn = null;
-    [SerializeField] private Button m_opcion4Btn = null;
     [SerializeField] private Toggle m_opcionAToggle = null;
     [SerializeField] private Toggle m_opcionBToggle = null;
     [SerializeField] private Toggle m_opcionCToggle = null;
@@ -237,9 +233,10 @@ public class SceneManager : MonoBehaviour
         m_erroresTxt.text = "" + contadorErrores;
         m_totalTxt.text = "" + (contadorAciertos + contadorErrores);
 
-        //registrarEnDB();
-
-        //saveResultadosSQLite("FIN");
+        //m_networkManager.UpdateScore(IDUser, score, delegate (AppUser appUser)
+        //{
+        //    Debug.Log(appUser.score);
+        //});
     }
 
     public void ShowProfile()
@@ -361,52 +358,122 @@ public class SceneManager : MonoBehaviour
         IDataReader reader = mAppUserDB.getDataByEmailAndPassword(m_emailLoginInput.text, m_passwordLoginInput.text);
 
         bool credenciales = false;
+        string status = "0";
+
         while (reader.Read())
         {
             credenciales = true;
+            status = reader[9].ToString();
             IDUser = int.Parse(reader[0].ToString());
             nombreUsuario = reader[1].ToString();
             score = int.Parse(reader[7].ToString());
-            
         }
-        reader.Close();
-        if (credenciales)
+
+        if (m_networkManager.verifyInternetAccess() && !credenciales )
         {
-            nivelInicio();
-            mAppUserDB.close();
-            ShowHome();
+            m_networkManager.LoginUserApp(m_emailLoginInput.text, m_passwordLoginInput.text, delegate (Response response)
+            {
+                
+                if (response.message == "Logueado")
+                {
+                    // Debug.Log("C - NE - probado");
+                    m_infoLoginTxt.text = response.message;                    
+                    IDUser = response.id;
+                    nombreUsuario = response.nombre.ToString();
+                    score = response.score;
+                    AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
+                        response.sexo, response.municipio, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
+                    mAppUserDB.addData(appUser);
+                    mAppUserDB.close();
+                    nivelInicio();
+                    ShowHome();
+                }
+                else
+                {
+                    if (response.message == "Status 0")
+                    {
+                        // Debug.Log("C - NE - S0 - probado 2");
+                        m_infoLoginTxt.text = "Este correo electrónico esta bloqueado";
+                        AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
+                        response.sexo, response.municipio, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
+                        mAppUserDB.addData(appUser);
+                        mAppUserDB.close();
+                    }
+                    else
+                    {
+                        // Debug.Log("C - NE - Email/pass probado 3");
+                        m_infoLoginTxt.text = response.message;
+                    }
+                }
+            });
         }
         else
         {
-            if (m_networkManager.verifyInternetAccess())
+            if (credenciales)
             {
-                m_networkManager.LoginUserApp(m_emailLoginInput.text, m_passwordLoginInput.text, delegate (Response response)
+                if (status == "1" && m_networkManager.verifyInternetAccess())
                 {
-                    m_infoLoginTxt.text = response.message;
-                    if (response.message == "Logueado")
+                    m_networkManager.LoginUserApp(m_emailLoginInput.text, m_passwordLoginInput.text, delegate (Response response)
                     {
-                        IDUser = response.id;
-                        nombreUsuario = response.nombre.ToString();
-                        score = 0;
-                        AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
-                            response.sexo, response.municipio, m_passwordLoginInput.text, response.score.ToString() ,"SI", response.status.ToString());
-                        mAppUserDB.addData(appUser);
-                        mAppUserDB.close();
+                        if (response.message == "Status 0")
+                        {
+                            // Debug.Log("C - E - S0 probado 4");
+                            m_infoLoginTxt.text = "Este correo electrónico esta bloqueado";
+                            mAppUserDB.actualizarStatus(response.status.ToString(), response.id.ToString());
+                        }
+                        else
+                        {
+                            // Debug.Log("C - E - S1 probado 5");                            
+                            nivelInicio();
+                            mAppUserDB.close();
+                            ShowHome();
+                        }
+
+                    });
+                }
+                else
+                {
+                    if (status == "1")
+                    {
+                        // Debug.Log("NC - E - S1 probado 6");
                         nivelInicio();
+                        mAppUserDB.close();
                         ShowHome();
                     }
                     else
                     {
-                        m_infoLoginTxt.text = response.message;
+                        if (status == "0" && m_networkManager.verifyInternetAccess())
+                        {
+                            m_networkManager.LoginUserApp(m_emailLoginInput.text, m_passwordLoginInput.text, delegate (Response response)
+                            {
+                                if (response.message == "Logueado")
+                                {
+                                    // Debug.Log("C - E - S00 probado 7");
+                                    m_infoLoginTxt.text = response.message;
+                                    mAppUserDB.actualizarStatus(response.status.ToString(), response.id.ToString());
+                                    IDUser = response.id;
+                                    nombreUsuario = response.nombre.ToString();
+                                    score = response.score;
+                                    nivelInicio();
+                                    mAppUserDB.close();
+                                    ShowHome();
+                                }
+                            });
+                        }
+                        else
+                        {
+                            // Debug.Log("C - E - S000 probado 8 ");
+                            m_infoLoginTxt.text = "Este correo electrónico esta bloqueado";
+                        }
                     }
-                });
+                }
             }
             else
             {
+                // Debug.Log("NE probado 9");
                 m_infoLoginTxt.text = "Credenciales Invalidas";
-            }
-        }
-        
+            }            
+        }        
     }
 
     // funciones para el registro -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*

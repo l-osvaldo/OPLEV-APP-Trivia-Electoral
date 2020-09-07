@@ -62,6 +62,12 @@ namespace DataBank
             throw null;
         }
 
+        public virtual void actualizarStatus(string status, string id)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
         //PreguntasDB *********************************************************
 
         public virtual IDataReader countPreguntas()

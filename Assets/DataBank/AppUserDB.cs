@@ -123,5 +123,14 @@ namespace DataBank
             dbcmd.ExecuteNonQuery();
         }
 
+        public override void actualizarStatus(string status, string id)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "UPDATE " + TABLE_NAME + " SET " + KEY_STATUS + " = '" + status
+                + "' WHERE " + KEY_ID + " = '" + id + "'";
+            dbcmd.ExecuteNonQuery();
+        }
+
     }
 }
