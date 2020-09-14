@@ -17,6 +17,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_questionsUI = null;
     [SerializeField] private GameObject m_modalUI = null;
     [SerializeField] private GameObject m_modal2UI = null;
+    [SerializeField] private GameObject m_modalCerrarSesionUI = null;
+    [SerializeField] private GameObject m_modalPerfilUI = null;
     [SerializeField] private GameObject m_resultadosUI = null;
 
     [SerializeField] private GameObject m_rubrosUI = null;
@@ -29,6 +31,8 @@ public class SceneManager : MonoBehaviour
 
     [SerializeField] private GameObject m_opc3UI = null;
     [SerializeField] private GameObject m_opc4UI = null;
+
+    [SerializeField] private GameObject m_closePartidaButton = null;
 
     [Header("Login")]
     [SerializeField] private Text m_infoLoginTxt = null;
@@ -76,7 +80,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Text m_puntosStatus = null;
     [SerializeField] private Text m_siguienteRespuesta = null;
     [SerializeField] private Text m_siguienteNivel = null;
-    [SerializeField] private Scrollbar m_scrollBarPregunta = null;
+    [SerializeField] private Scrollbar m_scrollBarPregunta = null;    
     private List<Pregunta> comboPreguntas = new List<Pregunta>();
     private int preguntasTotal = 0;
     private int[] niveles = { 10, 20, 30, 40, 50 };
@@ -104,6 +108,13 @@ public class SceneManager : MonoBehaviour
     [Header("Perfil")]
     [SerializeField] private GameObject m_perfilUI = null;
 
+    [Header("ModalPerfil")]
+    [SerializeField] private Image m_userIconModalPerfil = null;
+    [SerializeField] private Text m_nombreModalPerfilTxt = null;
+    [SerializeField] private Text m_emailModalPerfilTxt = null;
+    [SerializeField] private Text m_generoModalPerfilTxt = null;
+    [SerializeField] private Text m_edadModalPerfilTxt = null;
+    [SerializeField] private Text m_municipioModalPerfilTxt = null;
 
     private NetworkManager m_networkManager = null;
 
@@ -225,7 +236,7 @@ public class SceneManager : MonoBehaviour
 
     public void ShowPreguntas()
     {
-
+        m_closePartidaButton.SetActive(true);
         m_questionsUI.SetActive(true);
         m_homeUI.SetActive(false);
         m_aciertoUI.SetActive(false);
@@ -239,6 +250,7 @@ public class SceneManager : MonoBehaviour
 
     public void Resultados()
     {
+        m_closePartidaButton.SetActive(false);
         m_registerUI.SetActive(false);
         m_loginUI.SetActive(false);
         m_modalUI.SetActive(false);
@@ -275,6 +287,16 @@ public class SceneManager : MonoBehaviour
     public void HideModal2()
     {
         m_modal2UI.SetActive(false);
+    }
+
+    public void HideModalCerrarSesion()
+    {
+        m_modalCerrarSesionUI.SetActive(false);
+    }
+
+    public void HideModalPerfil()
+    {
+        m_modalPerfilUI.SetActive(false);
     }
     // submit -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -1154,8 +1176,8 @@ public class SceneManager : MonoBehaviour
             appUserDB.actualizarScore(""+score, ""+IDUser);
             //Resultados();
             Invoke("Resultados", 2);
-            LeanTween.scaleX(m_progreso, 0, 2).setEaseInBack().setDelay(2);
-            m_barraProgreso.GetComponent<SlideProgressBarBehaviour>().DisableProgressBar();
+            //LeanTween.scaleX(m_progreso, 0, 2).setEaseInBack().setDelay(2);
+            //m_barraProgreso.GetComponent<SlideProgressBarBehaviour>().DisableProgressBar();
         }
 
     }
@@ -1351,5 +1373,36 @@ public class SceneManager : MonoBehaviour
         m_modal2UI.SetActive(false);
         ShowHome();
     }
-    
+
+    public void ShowModalCerrarSesion()
+    {
+        m_modalCerrarSesionUI.SetActive(true);
+    }
+
+    public void ShowModalPerfil()
+    {
+        m_modalPerfilUI.SetActive(true);
+
+        AppUserDB appUserDB = new AppUserDB();
+
+        IDataReader dataReader = appUserDB.getDataByID(IDUser.ToString());
+
+        while (dataReader.Read())
+        {
+            string genero = "Masculino";
+            m_userIconModalPerfil.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
+            if (dataReader[4].ToString().Equals("F"))
+            {
+                genero = "Femenino";
+                m_userIconModalPerfil.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
+            }
+
+            m_nombreModalPerfilTxt.text = dataReader[1].ToString();
+            m_emailModalPerfilTxt.text = dataReader[2].ToString();
+            m_generoModalPerfilTxt.text = genero;
+            m_edadModalPerfilTxt.text = dataReader[3].ToString();
+            m_municipioModalPerfilTxt.text = dataReader[5].ToString();
+        }
+    }
+
 }

@@ -132,5 +132,12 @@ namespace DataBank
             dbcmd.ExecuteNonQuery();
         }
 
+        public override IDataReader getDataByID(string id)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_ID + " = '" + id + "'";
+            return dbcmd.ExecuteReader();
+        }
     }
 }
