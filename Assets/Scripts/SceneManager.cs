@@ -16,14 +16,15 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_homeUI = null;
     [SerializeField] private GameObject m_questionsUI = null;
     [SerializeField] private GameObject m_modalUI = null;
+    [SerializeField] private GameObject m_modal2UI = null;
     [SerializeField] private GameObject m_resultadosUI = null;
 
     [SerializeField] private GameObject m_rubrosUI = null;
     [SerializeField] private GameObject m_subrubroCGUI = null;
     [SerializeField] private GameObject m_subrubroCPCCUI = null;
+    [SerializeField] private GameObject m_preguntasUI = null;
     [SerializeField] private GameObject m_aciertoUI = null;
     [SerializeField] private GameObject m_nivelUI = null;
-    [SerializeField] private GameObject m_statusUI = null;
     [SerializeField] private GameObject m_buscarUI = null;
 
     [SerializeField] private GameObject m_opc3UI = null;
@@ -36,10 +37,17 @@ public class SceneManager : MonoBehaviour
     private int IDUser = 0;
     private string nombreUsuario = "";
     private int score = 0;
+    private string genero = "";
 
     [Header("Home")]
     [SerializeField] private Text m_nombreUsuarioTxt = null;
     [SerializeField] private Text m_numeroCoincidenciasTxt = null;
+    [SerializeField] private Image m_userIconPerfil = null;
+    [SerializeField] private Image m_userIconPerfil2 = null;
+
+    [Header("Perfil")]
+    [SerializeField] private Image m_userIconPerfil3 = null;
+    [SerializeField] private Text m_nombreUsuarioPerfilTxt = null;
 
     [Header("Buscar")]
     [SerializeField] private InputField m_buscarInput = null;
@@ -66,16 +74,20 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Text m_preguntasProgreso = null;
     [SerializeField] private Text m_nivelStatus = null;
     [SerializeField] private Text m_puntosStatus = null;
+    [SerializeField] private Text m_siguienteRespuesta = null;
+    [SerializeField] private Text m_siguienteNivel = null;
+    [SerializeField] private Scrollbar m_scrollBarPregunta = null;
     private List<Pregunta> comboPreguntas = new List<Pregunta>();
     private int preguntasTotal = 0;
     private int[] niveles = { 10, 20, 30, 40, 50 };
+    private bool[] statusNiveles = { false, false, false, false, false };
+    //float inicialYB = 0.0f;
+    //float inicialYC = 0.0f;
+    //float inicialYD = 0.0f;
 
     [Header("Respuesta")]
     [SerializeField] private Text m_respuestaTxt = null;
     [SerializeField] private Image m_respuestaImg = null;
-    [SerializeField] private GameObject m_barraProgresoR = null;
-    [SerializeField] private GameObject m_progresoR = null;
-    [SerializeField] private Text m_preguntasProgresoR = null;
     private string respuestaCorrecta = "";
     private int contadorAciertos = 0;
     private int contadorErrores = 0;
@@ -150,22 +162,39 @@ public class SceneManager : MonoBehaviour
     {
         actualizarPreguntas();
 
-        m_nombreUsuarioTxt.text = "Hola, " +  nombreUsuario;
+        //Vector3 vectorB = m_opcionBToggle.transform.position;
+        //Vector3 vectorC = m_opcionCToggle.transform.position;
+        //Vector3 vectorD = m_opcionDToggle.transform.position;
+
+        //inicialYB = vectorB.y;
+        //inicialYC = vectorC.y;
+        //inicialYD = vectorD.y;
+
+        m_nombreUsuarioTxt.text = nombreUsuario;
+        m_nombreUsuarioPerfilTxt.text = nombreUsuario;
+
+        if (genero == "M")
+        {
+            m_userIconPerfil.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
+            m_userIconPerfil2.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
+            m_userIconPerfil3.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
+        }
+        else
+        {
+            m_userIconPerfil.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
+            m_userIconPerfil2.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
+            m_userIconPerfil3.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
+        }
 
         m_registerUI.SetActive(false);
         m_loginUI.SetActive(false);
         m_homeUI.SetActive(true);
         m_questionsUI.SetActive(false);
         m_modalUI.SetActive(false);
-        m_resultadosUI.SetActive(false);
 
         m_rubrosUI.SetActive(true);
         m_subrubroCGUI.SetActive(false);
         m_subrubroCPCCUI.SetActive(false);
-        m_questionsUI.SetActive(false);
-        m_aciertoUI.SetActive(false);
-        m_nivelUI.SetActive(false);
-        m_statusUI.SetActive(false);
         m_buscarUI.SetActive(false);
 
         contadorAciertos = 0;
@@ -183,9 +212,6 @@ public class SceneManager : MonoBehaviour
         m_subrubroCGUI.SetActive(true);
         m_subrubroCPCCUI.SetActive(false);
         m_questionsUI.SetActive(false);
-        m_aciertoUI.SetActive(false);
-        m_resultadosUI.SetActive(false);
-        m_nivelUI.SetActive(false);
         m_buscarUI.SetActive(false);
     }
     public void ShowSubrubroCPCC()
@@ -194,23 +220,19 @@ public class SceneManager : MonoBehaviour
         m_subrubroCGUI.SetActive(false);
         m_subrubroCPCCUI.SetActive(true);
         m_questionsUI.SetActive(false);
-        m_aciertoUI.SetActive(false);
-        m_resultadosUI.SetActive(false);
-        m_nivelUI.SetActive(false);
         m_buscarUI.SetActive(false);
     }
 
     public void ShowPreguntas()
     {
-        m_rubrosUI.SetActive(false);
-        m_subrubroCGUI.SetActive(false);
-        m_subrubroCPCCUI.SetActive(false);
+
         m_questionsUI.SetActive(true);
+        m_homeUI.SetActive(false);
         m_aciertoUI.SetActive(false);
         m_resultadosUI.SetActive(false);
         m_nivelUI.SetActive(false);
-        m_statusUI.SetActive(true);
-        m_buscarUI.SetActive(false);
+
+        m_preguntasUI.SetActive(true);
 
         asignarPregunta();
     }
@@ -219,13 +241,9 @@ public class SceneManager : MonoBehaviour
     {
         m_registerUI.SetActive(false);
         m_loginUI.SetActive(false);
-        m_questionsUI.SetActive(false);
         m_modalUI.SetActive(false);
         m_resultadosUI.SetActive(true);
 
-        m_rubrosUI.SetActive(false);
-        m_subrubroCGUI.SetActive(false);
-        m_subrubroCPCCUI.SetActive(false);
         m_aciertoUI.SetActive(false);
         m_buscarUI.SetActive(false);
 
@@ -252,6 +270,11 @@ public class SceneManager : MonoBehaviour
     public void HideModal()
     {
         m_modalUI.SetActive(false);
+    }
+
+    public void HideModal2()
+    {
+        m_modal2UI.SetActive(false);
     }
     // submit -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
@@ -367,6 +390,7 @@ public class SceneManager : MonoBehaviour
             IDUser = int.Parse(reader[0].ToString());
             nombreUsuario = reader[1].ToString();
             score = int.Parse(reader[7].ToString());
+            genero = reader[4].ToString();
         }
 
         if (m_networkManager.verifyInternetAccess() && !credenciales )
@@ -381,6 +405,7 @@ public class SceneManager : MonoBehaviour
                     IDUser = response.id;
                     nombreUsuario = response.nombre.ToString();
                     score = response.score;
+                    genero = response.sexo;
                     AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
                         response.sexo, response.municipio, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
                     mAppUserDB.addData(appUser);
@@ -454,6 +479,7 @@ public class SceneManager : MonoBehaviour
                                     IDUser = response.id;
                                     nombreUsuario = response.nombre.ToString();
                                     score = response.score;
+                                    genero = response.sexo;
                                     nivelInicio();
                                     mAppUserDB.close();
                                     ShowHome();
@@ -745,6 +771,8 @@ public class SceneManager : MonoBehaviour
 
         m_preguntaTxt.text = "¿" + comboPreguntas[numeroPregunta].pregunta + "?";
 
+        m_scrollBarPregunta.value = 1;
+
         if (comboPreguntas[numeroPregunta].pregunta.Length >= 100)
         {
             m_preguntaTxt.resizeTextForBestFit = true;
@@ -792,6 +820,14 @@ public class SceneManager : MonoBehaviour
                 respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_d;
             }
         }
+
+        //Vector3 vectorB = m_opcionBToggle.transform.position;
+        //Vector3 vectorC = m_opcionCToggle.transform.position;
+        //Vector3 vectorD = m_opcionDToggle.transform.position;
+
+        
+        //float xb
+
         switch (numeroRespuestas)
         {
             case "2":
@@ -800,8 +836,31 @@ public class SceneManager : MonoBehaviour
 
                 OrdenarRespuestas(opc);
 
-                m_opcionAToggle.GetComponentInChildren<Text>().text = opc[0];
+                m_opcionAToggle.GetComponentInChildren<Text>().text = opc[0];             
                 m_opcionBToggle.GetComponentInChildren<Text>().text = opc[1];
+
+                
+                
+                if (opc[0].Length >= 120 || opc[1].Length >= 120)
+                {
+                    //m_opcionAToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+                    //m_opcionBToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+
+                    m_opcionAToggle.GetComponentInChildren<Text>().fontSize = 18;
+                    m_opcionBToggle.GetComponentInChildren<Text>().fontSize = 18;
+                }
+                else
+                {
+                    //m_opcionAToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+                    //m_opcionBToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+
+                    m_opcionAToggle.GetComponentInChildren<Text>().fontSize = 20;
+                    m_opcionBToggle.GetComponentInChildren<Text>().fontSize = 20;
+                }
+
+                /// m_opcionBToggle.transform.position = new Vector3(0.0f, inicialYC, 90.0f);
+
+                // m_opcionBToggle.transform.position = new Vector3(0.0f, -2.0f, 0.0f);
 
                 m_opc3UI.SetActive(false);
                 m_opc4UI.SetActive(false);
@@ -814,9 +873,36 @@ public class SceneManager : MonoBehaviour
 
                 OrdenarRespuestas(opc2);
 
-                m_opcionAToggle.GetComponentInChildren<Text>().text = opc2[0];
+                m_opcionAToggle.GetComponentInChildren<Text>().text = opc2[0];               
                 m_opcionBToggle.GetComponentInChildren<Text>().text = opc2[1];
                 m_opcionCToggle.GetComponentInChildren<Text>().text = opc2[2];
+
+                Debug.Log(opc2[0].Length + " - " + opc2[1].Length + " - " + opc2[2].Length);
+
+                if (opc2[0].Length >= 120 || opc2[1].Length >= 120 || opc2[2].Length >= 120)
+                {
+
+                    //m_opcionAToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+                    //m_opcionBToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+                    //m_opcionCToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+                                       
+                    m_opcionAToggle.GetComponentInChildren<Text>().fontSize = 15;
+                    m_opcionBToggle.GetComponentInChildren<Text>().fontSize = 15;
+                    m_opcionCToggle.GetComponentInChildren<Text>().fontSize = 15;
+                }
+                else
+                {
+                    //m_opcionAToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+                    //m_opcionBToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+                    //m_opcionCToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+
+                    m_opcionAToggle.GetComponentInChildren<Text>().fontSize = 20;
+                    m_opcionBToggle.GetComponentInChildren<Text>().fontSize = 20;
+                    m_opcionCToggle.GetComponentInChildren<Text>().fontSize = 20;
+                }
+
+                //m_opcionBToggle.transform.position = new Vector3(0.0f, (inicialYB-0.2f), 90.0f);
+                //m_opcionCToggle.transform.position = new Vector3(0.0f, (inicialYC-0.3f), 90.0f);
 
                 m_opc3UI.SetActive(true);
                 m_opc4UI.SetActive(false);
@@ -830,16 +916,52 @@ public class SceneManager : MonoBehaviour
 
                 OrdenarRespuestas(opc3);
 
-                m_opcionAToggle.GetComponentInChildren<Text>().text = opc3[0];
+                m_opcionAToggle.GetComponentInChildren<Text>().text = opc3[0];              
                 m_opcionBToggle.GetComponentInChildren<Text>().text = opc3[1];
                 m_opcionCToggle.GetComponentInChildren<Text>().text = opc3[2];
                 m_opcionDToggle.GetComponentInChildren<Text>().text = opc3[3];
+
+                if (opc3[0].Length >= 120 || opc3[1].Length >= 120 || opc3[2].Length >= 120 || opc3[3].Length >= 120)
+                {
+                    //m_opcionAToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+                    //m_opcionBToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+                    //m_opcionCToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+                    //m_opcionDToggle.GetComponentInChildren<Text>().resizeTextForBestFit = true;
+
+                    m_opcionAToggle.GetComponentInChildren<Text>().fontSize = 17;
+                    m_opcionBToggle.GetComponentInChildren<Text>().fontSize = 17;
+                    m_opcionCToggle.GetComponentInChildren<Text>().fontSize = 17;
+                    m_opcionDToggle.GetComponentInChildren<Text>().fontSize = 17;
+                }
+                else
+                {
+                    //m_opcionAToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+                    //m_opcionBToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+                    //m_opcionCToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+                    //m_opcionDToggle.GetComponentInChildren<Text>().resizeTextForBestFit = false;
+
+                    m_opcionAToggle.GetComponentInChildren<Text>().fontSize = 20;
+                    m_opcionBToggle.GetComponentInChildren<Text>().fontSize = 20;
+                    m_opcionCToggle.GetComponentInChildren<Text>().fontSize = 20;
+                    m_opcionDToggle.GetComponentInChildren<Text>().fontSize = 20;
+                }
+
+                // m_opcionAToggle.transform.position = new Vector3(0.0f, 44.0f, 0.0f);
+                //m_opcionBToggle.transform.position = new Vector3(0.0f, inicialYB, 90.0f);
+                //m_opcionCToggle.transform.position = new Vector3(0.0f, inicialYC, 90.0f);
+                //m_opcionDToggle.transform.position = new Vector3(0.0f, inicialYD, 90.0f);
 
                 m_opc3UI.SetActive(true);
                 m_opc4UI.SetActive(true);
 
                 break;
         }
+
+        //Vector3 vector = m_opcionBToggle.transform.position;
+
+        //Debug.Log("X: " + vectorB.x + " Y: " + vectorB.y + " Z: " + vectorB.z);
+        //Debug.Log("X: " + vectorC.x + " Y: " + vectorC.y + " Z: " + vectorC.z);
+        //Debug.Log("X: " + vectorD.x + " Y: " + vectorD.y + " Z: " + vectorD.z);
 
         comboPreguntas.Remove(comboPreguntas[numeroPregunta]);
 
@@ -885,10 +1007,16 @@ public class SceneManager : MonoBehaviour
 
     public void enviarRespuesta()
     {
-        m_preguntasProgresoR.text = (preguntasTotal - comboPreguntas.Count) + "/" + preguntasTotal;
-        float progressScale = 1 - ((float)comboPreguntas.Count / preguntasTotal);
-        LeanTween.scaleX(m_progresoR, progressScale, 0.25f).setEaseInOutBack();
-        
+        if (comboPreguntas.Count == 0)
+        {
+            m_siguienteRespuesta.text = "Ver Resultados";
+            m_siguienteNivel.text = "Ver Resultados";
+        }
+        else
+        {
+            m_siguienteRespuesta.text = "Siguiente Pregunta";
+            m_siguienteNivel.text = "Siguiente Pregunta";
+        }
         if (m_opcionAToggle.isOn)
         {
                       
@@ -907,7 +1035,7 @@ public class SceneManager : MonoBehaviour
                 m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
                 bitacoraDeResultados += "I,";
             }
-            m_questionsUI.SetActive(false);
+            m_preguntasUI.SetActive(false);
             if (nivel())
             {
                 m_nivelUI.SetActive(true);
@@ -936,7 +1064,7 @@ public class SceneManager : MonoBehaviour
                 m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
                 bitacoraDeResultados += "I,";
             }
-            m_questionsUI.SetActive(false);
+            m_preguntasUI.SetActive(false);
             if (nivel())
             {
                 m_nivelUI.SetActive(true);
@@ -964,7 +1092,7 @@ public class SceneManager : MonoBehaviour
                 m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
                 bitacoraDeResultados += "I,";
             }
-            m_questionsUI.SetActive(false);
+            m_preguntasUI.SetActive(false);
             if (nivel())
             {
                 m_nivelUI.SetActive(true);
@@ -992,7 +1120,7 @@ public class SceneManager : MonoBehaviour
                 m_respuestaImg.sprite = Resources.Load<Sprite>("Sprites/incorrecto");
                 bitacoraDeResultados += "I,";
             }
-            m_questionsUI.SetActive(false);
+            m_preguntasUI.SetActive(false);
             if (nivel())
             {
                 m_nivelUI.SetActive(true);
@@ -1013,6 +1141,7 @@ public class SceneManager : MonoBehaviour
         m_opcionDToggle.isOn = false;
 
         m_aciertoUI.SetActive(false);
+        m_nivelUI.SetActive(false);
         //SceneEventManager.Instance?.DisableButtons();
         if (comboPreguntas.Count > 0)
         {
@@ -1033,28 +1162,32 @@ public class SceneManager : MonoBehaviour
 
     public bool nivel()
     {
-        if (score == niveles[0])
+        if (score == niveles[0] && !statusNiveles[0])
         {
             m_nivelStatus.text = "2";
             m_nivelTxt.text = "10";
+            statusNiveles[0] = true;
             return true;
         }
-        if (score == niveles[1])
+        if (score == niveles[1] && !statusNiveles[1])
         {
             m_nivelStatus.text = "3";
             m_nivelTxt.text = "20";
+            statusNiveles[1] = true;
             return true;
         }
-        if (score >= niveles[2])
+        if (score == niveles[2] && !statusNiveles[2])
         {
             m_nivelStatus.text = "4";
             m_nivelTxt.text = "30";
+            statusNiveles[2] = true;
             return true;
         }
-        if (score >= niveles[3])
+        if (score == niveles[3] && !statusNiveles[3])
         {
             m_nivelStatus.text = "5";
             m_nivelTxt.text = "40";
+            statusNiveles[3] = true;
             return true;
         }
         return false;
@@ -1075,7 +1208,7 @@ public class SceneManager : MonoBehaviour
         {
             m_nivelStatus.text = "4";
         }
-        if (score >= niveles[3] && score < niveles[4])
+        if (score >= niveles[3])
         {
             m_nivelStatus.text = "5";
         }
@@ -1095,7 +1228,6 @@ public class SceneManager : MonoBehaviour
             m_resultadosUI.SetActive(false);
             m_nivelUI.SetActive(false);
             m_buscarUI.SetActive(true);
-            m_statusUI.SetActive(false);
 
             PreguntaDB preguntaDB = new PreguntaDB();
 
@@ -1202,5 +1334,22 @@ public class SceneManager : MonoBehaviour
         ShowHome();
     }
 
+    public void showRubros()
+    {
+        m_subrubroCGUI.SetActive(false);
+        m_subrubroCPCCUI.SetActive(false);
+        m_rubrosUI.SetActive(true);
+    }
+
+    public void ShowModal2()
+    {
+        m_modal2UI.SetActive(true);
+    }
+
+    public void salirPartida()
+    {
+        m_modal2UI.SetActive(false);
+        ShowHome();
+    }
     
 }

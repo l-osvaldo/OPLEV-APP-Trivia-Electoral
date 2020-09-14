@@ -33,13 +33,13 @@ public class SlideProgressBarBehaviour : MonoBehaviour
 
     public void EnableProgressBar()
     {
-        LeanTween.alphaCanvas(_canvasGroup, 1, 0.5f).setFrom(0).setEaseInCubic();
-        LeanTween.move(_rectTransform, _visiblePosition, 0.5f).setFrom(_hiddenPosition).setEaseInOutBack();
+        //LeanTween.alphaCanvas(_canvasGroup, 1, 0.5f).setFrom(0).setEaseInCubic();
+        //LeanTween.move(_rectTransform, _visiblePosition, 0.5f).setFrom(_hiddenPosition).setEaseInOutBack();
     }
 
     public void DisableProgressBar()
     {
-        LeanTween.alphaCanvas(_canvasGroup, 0, 0.5f).setFrom(1).setEaseInCubic();
-        LeanTween.move(_rectTransform, _hiddenPosition, 0.5f).setFrom(_visiblePosition).setEaseInOutBack();
+        //LeanTween.alphaCanvas(_canvasGroup, 0, 0.5f).setFrom(1).setEaseInCubic();
+        //LeanTween.move(_rectTransform, _hiddenPosition, 0.5f).setFrom(_visiblePosition).setEaseInOutBack();
     }
 }
