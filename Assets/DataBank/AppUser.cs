@@ -14,13 +14,14 @@ namespace DataBank
         public string edad;
         public string sexo;
         public string municipio;
+        public string estado;
         public string password;
         public string score;
         public string registrado;
         public string status;
 
 
-        public AppUser(string id, string nombre, string email, string edad, string sexo, string municipio, string password, string score, string registrado, string status)
+        public AppUser(string id, string nombre, string email, string edad, string sexo, string municipio, string estado, string password, string score, string registrado, string status)
         {
             this.id = id;
             this.nombre = nombre;
@@ -28,6 +29,7 @@ namespace DataBank
             this.edad = edad;
             this.sexo = sexo;
             this.municipio = municipio;
+            this.estado = estado;
             this.password = password;
             this.score = score;
             this.registrado = registrado;

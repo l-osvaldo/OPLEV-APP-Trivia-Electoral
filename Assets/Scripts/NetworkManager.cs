@@ -21,12 +21,12 @@ public class NetworkManager : MonoBehaviour
         }        
     }
 
-    public void CreateUserApp(string nombre, string email, int edad, string sexo, string municipio, string password, int score, Action<Response> response)
+    public void CreateUserApp(string nombre, string email, int edad, string sexo, string municipio, string estado, string password, int score, Action<Response> response)
     {
-        StartCoroutine(CO_CreateUser(nombre, email, edad, sexo, municipio, password, score, response));
+        StartCoroutine(CO_CreateUser(nombre, email, edad, sexo, municipio, estado, password, score, response));
     }
 
-    private IEnumerator CO_CreateUser(string nombre, string email, int edad, string sexo, string municipio, string password, int score, Action<Response> response)
+    private IEnumerator CO_CreateUser(string nombre, string email, int edad, string sexo, string municipio, string estado,string password, int score, Action<Response> response)
     {
         WWWForm form = new WWWForm();
 
@@ -35,6 +35,7 @@ public class NetworkManager : MonoBehaviour
         form.AddField("edad", edad);
         form.AddField("sexo", sexo);
         form.AddField("municipio", municipio);
+        form.AddField("estado", estado);
         form.AddField("password", password);
         form.AddField("score", score);
 
@@ -203,6 +204,7 @@ public class Response
     public int edad = 0;
     public string sexo = "";
     public string municipio = "";
+    public string estado = "";
     public string password = "";
     public int score = 0;
     public int status = 0;

@@ -18,6 +18,7 @@ namespace DataBank
         private const String KEY_EDAD = "edad";
         private const String KEY_SEXO = "sexo";
         private const String KEY_MUNICIPIO = "municipio";
+        private const String KEY_ESTADO = "estado";
         private const String KEY_PASSWORD = "password";
         private const String KEY_SCORE = "score";
         private const String KEY_REGISTRADO = "registrado";
@@ -34,6 +35,7 @@ namespace DataBank
                 KEY_EDAD + " TEXT, " +
                 KEY_SEXO + " TEXT, " +
                 KEY_MUNICIPIO + " TEXT, " +
+                KEY_ESTADO + " TEXT, " +
                 KEY_PASSWORD + " TEXT, " +
                 KEY_SCORE + " TEXT, " +
                 KEY_REGISTRADO + " TEXT, " +
@@ -55,6 +57,7 @@ namespace DataBank
                 + KEY_EDAD + ", "
                 + KEY_SEXO + ", "
                 + KEY_MUNICIPIO + ", "
+                + KEY_ESTADO + ", "
                 + KEY_PASSWORD + ", "
                 + KEY_SCORE + ", "
                 + KEY_REGISTRADO + ", "
@@ -67,6 +70,7 @@ namespace DataBank
                 + appUser.edad         + "', '"
                 + appUser.sexo         + "', '"
                 + appUser.municipio    + "', '"
+                + appUser.estado + "', '"
                 + appUser.password     + "', '"
                 + appUser.score        + "', '"
                 + appUser.registrado   + "', '"
@@ -137,6 +141,14 @@ namespace DataBank
             IDbCommand dbcmd = getDbCommand();
             dbcmd.CommandText =
                 "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_ID + " = '" + id + "'";
+            return dbcmd.ExecuteReader();
+        }
+
+        public override IDataReader getDataByEmail(string email)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_EMAIL + " = '" + email + "'";
             return dbcmd.ExecuteReader();
         }
     }

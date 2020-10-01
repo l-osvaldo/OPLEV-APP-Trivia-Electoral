@@ -19,6 +19,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_modal2UI = null;
     [SerializeField] private GameObject m_modalCerrarSesionUI = null;
     [SerializeField] private GameObject m_modalPerfilUI = null;
+    [SerializeField] private GameObject m_modalAvisoPrivasidadUI = null;
     [SerializeField] private GameObject m_resultadosUI = null;
 
     [SerializeField] private GameObject m_rubrosUI = null;
@@ -33,6 +34,10 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_opc4UI = null;
 
     [SerializeField] private GameObject m_closePartidaButton = null;
+    [SerializeField] private GameObject m_inicioPartidaFiltroBtn = null;
+
+    [SerializeField] private GameObject m_municipiosUI = null;
+    [SerializeField] private GameObject m_estadosUI = null;
 
     [Header("Login")]
     [SerializeField] private Text m_infoLoginTxt = null;
@@ -55,7 +60,7 @@ public class SceneManager : MonoBehaviour
 
     [Header("Buscar")]
     [SerializeField] private InputField m_buscarInput = null;
-
+    
     [Header("Register")]
     [SerializeField] private InputField m_nameInput = null;
     [SerializeField] private InputField m_emailInput = null;
@@ -66,6 +71,10 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private InputField m_passwordInput = null;
     [SerializeField] private Toggle m_privacidadToggle = null;
     [SerializeField] private Text m_infoErrorTxt = null;
+    [SerializeField] private Toggle m_municipiosToggle = null;
+    [SerializeField] private Toggle m_estadosToggle = null;
+    [SerializeField] private InputField m_filtroEstadoInput = null;
+    [SerializeField] private Dropdown m_estadosInput = null;
 
     [Header("Preguntas")]    
     [SerializeField] private Text m_preguntaTxt = null;
@@ -115,6 +124,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Text m_generoModalPerfilTxt = null;
     [SerializeField] private Text m_edadModalPerfilTxt = null;
     [SerializeField] private Text m_municipioModalPerfilTxt = null;
+    [SerializeField] private Text m_municipioTituloModalPerfilTxt = null;
 
     private NetworkManager m_networkManager = null;
 
@@ -298,6 +308,62 @@ public class SceneManager : MonoBehaviour
     {
         m_modalPerfilUI.SetActive(false);
     }
+
+    public void HideModalAvisoPrivacidad()
+    {
+        m_modalAvisoPrivasidadUI.SetActive(false);
+    }
+
+    public void ShowMunicipiosOrEstados()
+    {
+        if (m_municipiosToggle.isOn)
+        {
+            m_municipiosUI.SetActive(true);
+            m_estadosUI.SetActive(false);
+            m_filtroEstadoInput.text = "";
+        }
+        if (m_estadosToggle.isOn)
+        {
+            m_filtroMunicipioInput.text = "";
+            m_municipiosUI.SetActive(false);
+            m_estadosUI.SetActive(true);
+
+            EstadoDB estadoDB = new EstadoDB();
+
+            IDataReader reader = estadoDB.countEstados();
+
+            int registrosEstados = int.Parse(reader[0].ToString());
+
+            if (registrosEstados == 0)
+            {
+                iniciarEstados(estadoDB);
+            }
+            else
+            {
+                reader = estadoDB.allEstados();
+
+                List<string> m_DropOptionsEstados = new List<string> { "Seleccione su Entidad Federativa" };
+
+                m_estadosInput.ClearOptions();
+
+                while (reader.Read())
+                {
+                    m_DropOptionsEstados.Add(reader[0].ToString());
+                }
+
+                m_estadosInput.AddOptions(m_DropOptionsEstados);
+                m_estadosInput.interactable = true;
+            }
+        }
+    }
+
+    public void ShowModalAvisoPrivacidad()
+    {
+        if (m_privacidadToggle.isOn)
+        {
+            m_modalAvisoPrivasidadUI.SetActive(true);
+        }
+    }
     // submit -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     public void SubmitRegister()
@@ -305,6 +371,7 @@ public class SceneManager : MonoBehaviour
 
         string sexo = "";
         string municipio = "";
+        string estado = "VERACRUZ";
 
         char[] charsToTrim = { '*', ' ', '\'' };
         m_nameInput.text = m_nameInput.text.Trim(charsToTrim);
@@ -343,16 +410,33 @@ public class SceneManager : MonoBehaviour
                     break;
             }
         }
-        if (m_municipioInput.value == 0)
+        if (m_municipiosToggle.isOn)
         {
-            m_infoErrorTxt.text = "* Seleccione su municipio";
-            return;
+            if (m_municipioInput.value == 0)
+            {
+                m_infoErrorTxt.text = "* Seleccione su municipio";
+                return;
+            }
+            else
+            {
+                int m_DropdownValue = m_municipioInput.value;
+                string textMunicipio = m_municipioInput.options[m_DropdownValue].text;
+                municipio = textMunicipio;
+            }
         }
-        else
+        if (m_estadosToggle.isOn)
         {
-            int m_DropdownValue = m_municipioInput.value;
-            string textMunicipio = m_municipioInput.options[m_DropdownValue].text;
-            municipio = textMunicipio;
+            if (m_estadosInput.value == 0)
+            {
+                m_infoErrorTxt.text = "* Seleccione su Entidad Federativa";
+                return;
+            }
+            else
+            {
+                int m_DropdownValueEstados = m_estadosInput.value;
+                string textEstado = m_estadosInput.options[m_DropdownValueEstados].text;
+                estado = textEstado;
+            }
         }
         if (m_passwordInput.text == "")
         {
@@ -369,15 +453,38 @@ public class SceneManager : MonoBehaviour
 
         AppUserDB mAppUserDB = new AppUserDB();
 
-        mAppUserDB.addData(new AppUser("0", m_nameInput.text, m_emailInput.text, m_edadInput.text, sexo,
-        municipio, m_passwordInput.text,"0", "NO","1"));
+        IDataReader dataReader = mAppUserDB.getDataByEmail(m_emailInput.text);
 
-        mAppUserDB.close();
+        bool existeCorreo = false;
 
-        m_infoErrorTxt.text = "Usuario Registrado";
-        m_infoLoginTxt.text = "Usuario Registrado , ya puedes iniciar sesión";
-        ShowLogin();
+        while (dataReader.Read())
+        {
+            existeCorreo = true;
+        }
 
+        if (!existeCorreo)
+        {
+            if (m_municipiosToggle.isOn)
+            {
+                mAppUserDB.addData(new AppUser("0", m_nameInput.text, m_emailInput.text, m_edadInput.text, sexo,
+                municipio, estado, m_passwordInput.text, "0", "NO", "1"));
+            }
+            if (m_estadosToggle.isOn)
+            {                
+                mAppUserDB.addData(new AppUser("0", m_nameInput.text, m_emailInput.text, m_edadInput.text, sexo,
+                municipio, estado, m_passwordInput.text, "0", "NO", "1"));
+            }
+
+            mAppUserDB.close();
+
+            m_infoErrorTxt.text = "Usuario Registrado";
+            m_infoLoginTxt.text = "Usuario Registrado , ya puedes iniciar sesión";
+            ShowLogin();
+        }
+        else
+        {
+            m_infoErrorTxt.text = "El correo electrónico ya está registrado";
+        }        
     }
 
     public void SubmitLogin()
@@ -408,10 +515,10 @@ public class SceneManager : MonoBehaviour
         while (reader.Read())
         {
             credenciales = true;
-            status = reader[9].ToString();
+            status = reader[10].ToString();
             IDUser = int.Parse(reader[0].ToString());
             nombreUsuario = reader[1].ToString();
-            score = int.Parse(reader[7].ToString());
+            score = int.Parse(reader[8].ToString());
             genero = reader[4].ToString();
         }
 
@@ -429,7 +536,7 @@ public class SceneManager : MonoBehaviour
                     score = response.score;
                     genero = response.sexo;
                     AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
-                        response.sexo, response.municipio, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
+                        response.sexo, response.municipio, response.estado, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
                     mAppUserDB.addData(appUser);
                     mAppUserDB.close();
                     nivelInicio();
@@ -442,7 +549,7 @@ public class SceneManager : MonoBehaviour
                         // Debug.Log("C - NE - S0 - probado 2");
                         m_infoLoginTxt.text = "Este correo electrónico esta bloqueado";
                         AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
-                        response.sexo, response.municipio, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
+                        response.sexo, response.municipio, response.estado, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
                         mAppUserDB.addData(appUser);
                         mAppUserDB.close();
                     }
@@ -571,6 +678,63 @@ public class SceneManager : MonoBehaviour
         municipioDB.close();
     }
 
+    public void filtroEstado()
+    {
+        string filtroEstado = m_filtroEstadoInput.text;
+
+        EstadoDB estadoDB = new EstadoDB();
+
+        m_estadosInput.ClearOptions();
+
+        IDataReader reader = estadoDB.filtroEstados(filtroEstado);
+
+        if (filtroEstado.Length > 0)
+        {
+            bool coincidencias = false;
+
+            List<string> m_DropOptionsEstadoFiltro = new List<string> { "Seleccione su Entidad Federativa" };
+
+            while (reader.Read())
+            {
+                coincidencias = true;
+                m_DropOptionsEstadoFiltro.Add(reader[0].ToString());
+            }
+
+            if (coincidencias)
+            {
+                m_estadosInput.AddOptions(m_DropOptionsEstadoFiltro);
+                m_estadosInput.interactable = true;
+            }
+            else
+            {
+                m_infoErrorTxt.text = "* No existen coincidencias";
+                m_municipioInput.ClearOptions();
+                m_municipioInput.interactable = true;
+            }
+
+            reader.Close();
+
+        }
+        else
+        {
+            reader = estadoDB.allEstados();
+
+            List<string> m_DropOptionsEstados = new List<string> { "Seleccione su Entidad Federativa" };
+
+            m_estadosInput.ClearOptions();
+
+            while (reader.Read())
+            {
+                m_DropOptionsEstados.Add(reader[0].ToString());
+            }
+
+            m_estadosInput.AddOptions(m_DropOptionsEstados);
+            m_estadosInput.interactable = true;
+        }
+
+        estadoDB.close();
+    }
+
     // registros en WS -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
 
     public void registrarEnDB()
@@ -586,9 +750,9 @@ public class SceneManager : MonoBehaviour
                 string nombre = reader[1].ToString();
                 string email = reader[2].ToString();                
                 string pass = reader[6].ToString();
-                int score = int.Parse(reader[7].ToString());
+                int score = int.Parse(reader[8].ToString());
                 m_networkManager.CreateUserApp(reader[1].ToString(), reader[2].ToString(), int.Parse(reader[3].ToString()),
-                    reader[4].ToString(), reader[5].ToString(), reader[6].ToString(), int.Parse(reader[7].ToString()), delegate (Response response)
+                    reader[4].ToString(), reader[5].ToString(), reader[6].ToString(), reader[7].ToString(), int.Parse(reader[8].ToString()), delegate (Response response)
                     {
                         if (response.message == "Usuario Registrado")
                         {
@@ -1263,6 +1427,15 @@ public class SceneManager : MonoBehaviour
                     dataReader[4].ToString(), dataReader[5].ToString(), dataReader[6].ToString(), "", "", "", "", dataReader[7].ToString());
                 comboPreguntas.Add(pregunta);
             }
+            if (comboPreguntas.Count > 0)
+            {
+                m_inicioPartidaFiltroBtn.SetActive(true);
+                
+            }
+            else
+            {
+                m_inicioPartidaFiltroBtn.SetActive(false);
+            }
             preguntasTotal = comboPreguntas.Count;
 
             m_numeroCoincidenciasTxt.text = comboPreguntas.Count.ToString();
@@ -1348,7 +1521,64 @@ public class SceneManager : MonoBehaviour
             }
             municipioDB.close();
             
-        }        
+        }
+        
+    }
+
+    public void iniciarEstados(EstadoDB estadoDB)
+    {
+        string path = Path.Combine(Application.streamingAssetsPath, "Json");
+        path = Path.Combine(path, "Estados.txt");
+
+        // Debug.Log(path);
+
+        string json = "";
+
+        if (path.Contains("://") || path.Contains(":///"))
+        {
+            // Debug.Log("path: 1");
+            UnityWebRequest file = UnityWebRequest.Get(path);
+            // Debug.Log("path: 1.1");
+            file.SendWebRequest();
+            while (!file.isDone) { }
+            // Debug.Log("path: 1.2");
+            json = file.downloadHandler.text;
+            // Debug.Log("path: 1.3");
+            // Debug.Log("json: " + json);
+        }
+        else
+        {
+            // Debug.Log("path: 2");
+            json = File.ReadAllText(path);
+        }
+
+        json = json.Remove(0, 1);
+        json = json.Remove(json.Length - 1, 1);
+
+        string[] estadosJSON = json.Split('{');
+
+        for (int i = 0; i < estadosJSON.Length; i++)
+        {
+            if (estadosJSON[i].Length > 0)
+            {
+                estadosJSON[i] = "{" + estadosJSON[i];
+
+                if (estadosJSON[i].Substring(estadosJSON[i].Length - 1, 1) == ",")
+                {
+                    estadosJSON[i] = estadosJSON[i].Remove(estadosJSON[i].Length - 1, 1);
+                }
+
+                Estado estado = JsonUtility.FromJson<Estado>(estadosJSON[i]);
+
+                estadoDB.addData(estado);
+
+                //Debug.Log();
+
+            }
+        }
+        estadoDB.close();
+
+        
     }
 
     public void BackHome()
@@ -1397,12 +1627,133 @@ public class SceneManager : MonoBehaviour
                 m_userIconModalPerfil.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
             }
 
+            if (dataReader[6].ToString().Equals("VERACRUZ"))
+            {
+                m_municipioTituloModalPerfilTxt.text = "MUNICIPIO:";
+                m_municipioModalPerfilTxt.text = dataReader[5].ToString();
+            }
+            else
+            {
+                m_municipioTituloModalPerfilTxt.text = "ENTIDAD FEDERATIVA:";
+                m_municipioModalPerfilTxt.text = dataReader[6].ToString();
+            }
+
             m_nombreModalPerfilTxt.text = dataReader[1].ToString();
             m_emailModalPerfilTxt.text = dataReader[2].ToString();
             m_generoModalPerfilTxt.text = genero;
             m_edadModalPerfilTxt.text = dataReader[3].ToString();
-            m_municipioModalPerfilTxt.text = dataReader[5].ToString();
         }
     }
+
+    public void IrUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/solicitud_informacion/");
+    }
+
+    //public async void saveResultadosSQLite()
+    //{
+    //    // Debug.Log(bitacoraDeResultados);
+    //    // Debug.Log(IDUser);
+
+    //    ResultadoDB resultadoDB = new ResultadoDB();
+
+    //    if (IDUser != 0)
+    //    {
+    //        IDataReader reader = resultadoDB.existeRegistroResultado(IDUser.ToString(), "NO");
+
+    //        if (reader[0].ToString() == "0")
+    //        {
+    //            reader = resultadoDB.existeRegistroResultado2("0");
+
+    //            if (reader[0].ToString() != "0")
+    //            {
+    //                resultadoDB.updateResultados2(IDUser.ToString());
+    //            }
+    //        }
+    //        reader.Close();
+
+    //        else
+    //        {
+    //            IDataReader reader = resultadoDB.existeRegistroResultado2(IDUser.ToString());
+
+    //            if (reader[0].ToString() != "0")
+    //            {
+    //                reader.Close();
+    //                resultadoDB.updateResultados(IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(), bitacoraDeResultados);
+    //            }
+    //            else
+    //            {
+    //                IDataReader data = resultadoDB.existeRegistroResultado2("0");
+
+    //                if (data[0].ToString() != "0")
+    //                {
+    //                    data.Close();
+    //                    resultadoDB.updateResultados2(IDUser.ToString());
+    //                    resultadoDB.updateResultados(IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(), bitacoraDeResultados);
+    //                }
+    //                else
+    //                {
+    //                    data.Close();
+    //                    Resultado resultado = new Resultado("0", IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(),
+    //                                        bitacoraDeResultados, "NO");
+    //                    resultadoDB.addData(resultado);
+    //                }
+    //            }
+    //        }
+
+    //        IDataReader dataReader = resultadoDB.registradoResultado(IDUser.ToString(), "NO");
+
+    //        while (dataReader.Read())
+    //        {
+    //            Resultado resultado = new Resultado(dataReader[0].ToString(), dataReader[1].ToString(), dataReader[2].ToString(),
+    //                dataReader[3].ToString(), dataReader[4].ToString(), dataReader[5].ToString());
+
+    //            saveResultadosWS(resultado, IDUser.ToString());
+    //        }
+    //        dataReader.Close();
+    //    }
+    //    else
+    //    {
+    //        if (modo == "FIN")
+    //        {
+    //            registrarEnDB();
+
+    //            await Task.Delay(3000);
+
+    //            IDataReader data = resultadoDB.existeRegistroResultado2("0");
+    //            if (data[0].ToString() != "0")
+    //            {
+    //                data.Close();
+    //                resultadoDB.updateResultados(IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(), bitacoraDeResultados);
+    //            }
+    //            else
+    //            {
+    //                data.Close();
+    //                Resultado resultado = new Resultado("0", IDUser.ToString(), contadorAciertos.ToString(), contadorErrores.ToString(),
+    //                                    bitacoraDeResultados, "NO");
+    //                resultadoDB.addData(resultado);
+    //            }
+
+    //        }
+    //    }
+
+    //    resultadoDB.close();
+    //}
+
+    //public void saveResultadosWS(Resultado resultado, string id_user_app)
+    //{
+    //    if (m_networkManager.verifyInternetAccess())
+    //    {
+    //        ResultadoDB resultadoDB = new ResultadoDB();
+
+    //        m_networkManager.SaveResultados(resultado, delegate (Resultado resultadoWS)
+    //        {
+    //            resultadoDB.updateResultadoWS(id_user_app, resultadoWS.id.ToString(), "SI");
+    //            resultadoDB.close();
+    //        });
+    //    }
+    //}
+
+
 
 }
