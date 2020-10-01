@@ -39,6 +39,8 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_municipiosUI = null;
     [SerializeField] private GameObject m_estadosUI = null;
 
+    [SerializeField] private GameObject m_temasDropdown = null;
+
     [Header("Login")]
     [SerializeField] private Text m_infoLoginTxt = null;
     [SerializeField] private InputField m_emailLoginInput = null;
@@ -53,6 +55,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Text m_numeroCoincidenciasTxt = null;
     [SerializeField] private Image m_userIconPerfil = null;
     [SerializeField] private Image m_userIconPerfil2 = null;
+    [SerializeField] private Dropdown m_temasInputDropdown = null;
 
     [Header("Perfil")]
     [SerializeField] private Image m_userIconPerfil3 = null;
@@ -224,7 +227,6 @@ public class SceneManager : MonoBehaviour
 
         m_buscarInput.text = "";
 
-        //saveResultadosSQLite("INICIO");
     }
 
     public void ShowSubrubroCG()
@@ -1400,12 +1402,13 @@ public class SceneManager : MonoBehaviour
         }
     }
 
-    public void buscar()
-    {
-        string filtro = m_buscarInput.text;
-            
-        if (filtro != "" && filtro != null)
+    public void buscarTema()
+    {            
+        if (m_temasInputDropdown.value != 0)
         {
+            int m_DropdownValueTema = m_temasInputDropdown.value;
+            string textTema = m_temasInputDropdown.options[m_DropdownValueTema].text;
+            
             m_rubrosUI.SetActive(false);
             m_subrubroCGUI.SetActive(false);
             m_subrubroCPCCUI.SetActive(false);
@@ -1417,7 +1420,7 @@ public class SceneManager : MonoBehaviour
 
             PreguntaDB preguntaDB = new PreguntaDB();
 
-            IDataReader dataReader = preguntaDB.filtroPorTemaPreguntas(filtro);
+            IDataReader dataReader = preguntaDB.filtroPorTemaPreguntas(textTema);
 
             comboPreguntas.Clear();
 
@@ -1440,8 +1443,11 @@ public class SceneManager : MonoBehaviour
 
             m_numeroCoincidenciasTxt.text = comboPreguntas.Count.ToString();
         }
-
-
+        else
+        {
+            m_buscarUI.SetActive(false);
+            m_rubrosUI.SetActive(true);
+        }
     }
 
     public void IniciarPartidaPorTema()
@@ -1577,8 +1583,63 @@ public class SceneManager : MonoBehaviour
             }
         }
         estadoDB.close();
+    }
 
-        
+    public void iniciarTemas()
+    {        
+        TemaDB temaDB = new TemaDB();
+
+        IDataReader reader = temaDB.countTemas();
+
+        int registrosTemas = int.Parse(reader[0].ToString());
+
+        if (registrosTemas == 0)
+        {
+            string path = Path.Combine(Application.streamingAssetsPath, "Json");
+            path = Path.Combine(path, "Temas.txt");
+
+            //Debug.Log(path);
+
+            string json = "";
+
+            if (path.Contains("://") || path.Contains(":///"))
+            {
+                UnityWebRequest file = UnityWebRequest.Get(path);
+                file.SendWebRequest();
+                while (!file.isDone) { }
+                json = file.downloadHandler.text;
+            }
+            else
+            {
+                json = File.ReadAllText(path);
+            }
+
+            json = json.Remove(0, 1);
+            json = json.Remove(json.Length - 1, 1);
+
+            string[] temasJSON = json.Split('{');
+
+            for (int i = 0; i < temasJSON.Length; i++)
+            {
+                if (temasJSON[i].Length > 0)
+                {
+                    temasJSON[i] = "{" + temasJSON[i];
+
+                    if (temasJSON[i].Substring(temasJSON[i].Length - 1, 1) == ",")
+                    {
+                        temasJSON[i] = temasJSON[i].Remove(temasJSON[i].Length - 1, 1);
+                    }
+
+                    Tema tema = JsonUtility.FromJson<Tema>(temasJSON[i]);
+
+                    temaDB.addData(tema);
+
+                    //Debug.Log();
+
+                }
+            }
+            temaDB.close();
+        }
     }
 
     public void BackHome()
@@ -1648,6 +1709,53 @@ public class SceneManager : MonoBehaviour
     public void IrUrl()
     {
         Application.OpenURL("http://www.oplever.org.mx/solicitud_informacion/");
+    }
+
+    public void filtroTema()
+    {
+        iniciarTemas();
+        string filtroTema = m_buscarInput.text;
+
+        m_temasDropdown.SetActive(true);
+
+        TemaDB temaDB = new TemaDB();
+
+        m_temasInputDropdown.ClearOptions();
+
+        IDataReader reader = temaDB.filtroTemas(filtroTema);
+
+        if (filtroTema.Length > 0)
+        {                
+            bool coincidencias = false;
+
+            List<string> m_DropOptionsTemaFiltro = new List<string> { "Seleccione su Tema" };
+
+            while (reader.Read())
+            {
+                coincidencias = true;
+                m_DropOptionsTemaFiltro.Add(reader[0].ToString());
+            }
+
+            if (coincidencias)
+            {
+                m_temasInputDropdown.AddOptions(m_DropOptionsTemaFiltro);
+                m_temasInputDropdown.interactable = true;
+            }
+            else
+            {               
+                m_temasInputDropdown.ClearOptions();
+                m_temasInputDropdown.AddOptions(new List<string> { "No existen coincidencias" });
+                m_temasInputDropdown.interactable = true;
+            }
+
+            reader.Close();
+
+        }
+        else
+        {
+            m_temasInputDropdown.ClearOptions();
+            m_temasDropdown.SetActive(false);
+        }
     }
 
     //public async void saveResultadosSQLite()

@@ -80,6 +80,26 @@ namespace DataBank
             throw null;
         }
 
+        //TemasDB ************************************************************
+
+        public virtual IDataReader countTemas()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader allTemas()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader filtroTemas(string filtro)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
         //PreguntasDB *********************************************************
 
         public virtual IDataReader countPreguntas()
