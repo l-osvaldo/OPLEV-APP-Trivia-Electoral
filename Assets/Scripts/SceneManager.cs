@@ -1889,6 +1889,16 @@ public class SceneManager : MonoBehaviour
         Application.OpenURL("http://www.oplever.org.mx/solicitud_informacion/");
     }
 
+    public void IrAvisoPrivacidadUrl()
+    {
+        Application.OpenURL("https://oplever.org.mx/sitiotransparencia/datospersonales/ap/deoe/trivia.pdf");
+    }
+
+    public void IrTerminosCondicionesUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/");
+    }
+
     public void IrNormatividadUrl()
     {
         Application.OpenURL("http://www.oplever.org.mx/normatividad/");
