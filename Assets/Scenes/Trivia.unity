@@ -876,7 +876,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.6
-  m_Text: "Conocimientos por \ncargos de consejos"
+  m_Text: "Conocimientos para \xD3rganos Desconcentrados del OPLEV"
 --- !u!222 &27222420
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -28714,9 +28714,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 0.7
-  m_Text: 'Conocimientos por
-
-    cargos de consejo'
+  m_Text: "Conocimientos para \xD3rganos Desconcentrados del OPLEV"
 --- !u!222 &1165869825
 CanvasRenderer:
   m_ObjectHideFlags: 0
