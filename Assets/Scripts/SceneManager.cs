@@ -17,6 +17,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_questionsUI = null;
     [SerializeField] private GameObject m_modalUI = null;
     [SerializeField] private GameObject m_modal2UI = null;
+    [SerializeField] private GameObject m_modalNotificacionDeErrorUI = null;
     [SerializeField] private GameObject m_modalCerrarSesionUI = null;
     [SerializeField] private GameObject m_modalPerfilUI = null;
     [SerializeField] private GameObject m_modalAvisoPrivasidadUI = null;
@@ -325,6 +326,11 @@ public class SceneManager : MonoBehaviour
     public void HideModal2()
     {
         m_modal2UI.SetActive(false);
+    }
+
+    public void HideModalNotificacionDeError()
+    {
+        m_modalNotificacionDeErrorUI.SetActive(false);
     }
 
     public void HideModalCerrarSesion()
@@ -1798,6 +1804,11 @@ public class SceneManager : MonoBehaviour
     public void ShowModal2()
     {
         m_modal2UI.SetActive(true);
+    }
+
+    public void enviarNotificacionDeError()
+    {
+        m_modalNotificacionDeErrorUI.SetActive(true);
     }
 
     public void salirPartida()
