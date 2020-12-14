@@ -64,7 +64,7 @@ namespace DataBank
         public override IDataReader filtroMunicipios(string filtro)
         {
             IDbCommand dbcmd = getDbCommand();
-            string query = "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_NOMBREMPIO + " LIKE '%" + filtro + "%'";
+            string query = "SELECT DISTINCT " + KEY_NOMBREMPIO + " FROM " + TABLE_NAME + " WHERE " + KEY_NOMBREMPIO + " LIKE '%" + filtro + "%'";
             // Debug.Log(query);
             dbcmd.CommandText = query;
             return dbcmd.ExecuteReader();

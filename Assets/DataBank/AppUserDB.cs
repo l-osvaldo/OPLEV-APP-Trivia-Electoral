@@ -18,9 +18,12 @@ namespace DataBank
         private const String KEY_EDAD = "edad";
         private const String KEY_SEXO = "sexo";
         private const String KEY_MUNICIPIO = "municipio";
+        private const String KEY_ESTADO = "estado";
         private const String KEY_PASSWORD = "password";
+        private const String KEY_SCORE = "score";
         private const String KEY_REGISTRADO = "registrado";
-        private String[] COLUMNS = new String[] { KEY_ID, KEY_NOMBRE, KEY_EMAIL, KEY_EDAD, KEY_SEXO, KEY_MUNICIPIO, KEY_PASSWORD, KEY_REGISTRADO };
+        private const String KEY_STATUS = "status";
+        //private String[] COLUMNS = new String[] { KEY_ID, KEY_NOMBRE, KEY_EMAIL, KEY_EDAD, KEY_SEXO, KEY_MUNICIPIO, KEY_PASSWORD, KEY_SCORE, KEY_REGISTRADO };
 
         public AppUserDB() : base()
         {
@@ -32,8 +35,11 @@ namespace DataBank
                 KEY_EDAD + " TEXT, " +
                 KEY_SEXO + " TEXT, " +
                 KEY_MUNICIPIO + " TEXT, " +
+                KEY_ESTADO + " TEXT, " +
                 KEY_PASSWORD + " TEXT, " +
-                KEY_REGISTRADO + " TEXT )";
+                KEY_SCORE + " TEXT, " +
+                KEY_REGISTRADO + " TEXT, " +
+                KEY_STATUS + " TEXT )";
             dbcmd.ExecuteNonQuery();
         }
 
@@ -51,18 +57,24 @@ namespace DataBank
                 + KEY_EDAD + ", "
                 + KEY_SEXO + ", "
                 + KEY_MUNICIPIO + ", "
+                + KEY_ESTADO + ", "
                 + KEY_PASSWORD + ", "
-                + KEY_REGISTRADO + " ) "
+                + KEY_SCORE + ", "
+                + KEY_REGISTRADO + ", "
+                + KEY_STATUS + " ) "
 
                 + "VALUES ( '"
-                + appUser._id           + "', '"
-                + appUser._nombre       + "', '"
-                + appUser._email        + "', '"
-                + appUser._edad         + "', '"
-                + appUser._sexo         + "', '"
-                + appUser._municipio    + "', '"
-                + appUser._password     + "', '"
-                + appUser._registrado   + "' )";
+                + appUser.id           + "', '"
+                + appUser.nombre       + "', '"
+                + appUser.email        + "', '"
+                + appUser.edad         + "', '"
+                + appUser.sexo         + "', '"
+                + appUser.municipio    + "', '"
+                + appUser.estado + "', '"
+                + appUser.password     + "', '"
+                + appUser.score        + "', '"
+                + appUser.registrado   + "', '"
+                + appUser.status       + "' )";
             // Debug.Log(query);
             dbcmd.CommandText = query;
             dbcmd.ExecuteNonQuery();
@@ -106,7 +118,38 @@ namespace DataBank
            dbcmd.ExecuteNonQuery();
         }
 
-        
+        public override void actualizarScore(string score, string id)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "UPDATE " + TABLE_NAME + " SET " + KEY_SCORE + " = '" + score
+                + "' WHERE " + KEY_ID + " = '" + id + "'";
+            dbcmd.ExecuteNonQuery();
+        }
 
+        public override void actualizarStatus(string status, string id)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "UPDATE " + TABLE_NAME + " SET " + KEY_STATUS + " = '" + status
+                + "' WHERE " + KEY_ID + " = '" + id + "'";
+            dbcmd.ExecuteNonQuery();
+        }
+
+        public override IDataReader getDataByID(string id)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_ID + " = '" + id + "'";
+            return dbcmd.ExecuteReader();
+        }
+
+        public override IDataReader getDataByEmail(string email)
+        {
+            IDbCommand dbcmd = getDbCommand();
+            dbcmd.CommandText =
+                "SELECT * FROM " + TABLE_NAME + " WHERE " + KEY_EMAIL + " = '" + email + "'";
+            return dbcmd.ExecuteReader();
+        }
     }
 }

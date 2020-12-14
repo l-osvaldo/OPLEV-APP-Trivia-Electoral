@@ -21,12 +21,12 @@ public class NetworkManager : MonoBehaviour
         }        
     }
 
-    public void CreateUserApp(string nombre, string email, int edad, string sexo, string municipio, string password, Action<Response> response)
+    public void CreateUserApp(string nombre, string email, int edad, string sexo, string municipio, string estado, string password, int score, Action<Response> response)
     {
-        StartCoroutine(CO_CreateUser(nombre, email, edad, sexo, municipio, password, response));
+        StartCoroutine(CO_CreateUser(nombre, email, edad, sexo, municipio, estado, password, score, response));
     }
 
-    private IEnumerator CO_CreateUser(string nombre, string email, int edad, string sexo, string municipio, string password, Action<Response> response)
+    private IEnumerator CO_CreateUser(string nombre, string email, int edad, string sexo, string municipio, string estado,string password, int score, Action<Response> response)
     {
         WWWForm form = new WWWForm();
 
@@ -35,13 +35,15 @@ public class NetworkManager : MonoBehaviour
         form.AddField("edad", edad);
         form.AddField("sexo", sexo);
         form.AddField("municipio", municipio);
+        form.AddField("estado", estado);
         form.AddField("password", password);
+        form.AddField("score", score);
 
         UnityWebRequest ws = UnityWebRequest.Post("http://test.oplever.org.mx/triviasw/api/ws/registrarUsuarioApp",form);
 
         yield return ws.SendWebRequest();
 
-        Debug.Log(ws.downloadHandler.text);
+        //Debug.Log(ws.downloadHandler.text);
 
         response(JsonUtility.FromJson<Response>(ws.downloadHandler.text));
     }
@@ -61,6 +63,8 @@ public class NetworkManager : MonoBehaviour
         UnityWebRequest ws = UnityWebRequest.Post("http://test.oplever.org.mx/triviasw/api/ws/loginUsuarioApp", form);
 
         yield return ws.SendWebRequest();
+
+        //Debug.Log(ws.downloadHandler.text);
 
         response(JsonUtility.FromJson<Response>(ws.downloadHandler.text));
     }
@@ -163,6 +167,30 @@ public class NetworkManager : MonoBehaviour
         responseResultado(JsonUtility.FromJson<Resultado>(json));
     }
 
+    public void UpdateScore(int id, int score, Action<AppUser> actualizado)
+    {
+        StartCoroutine(CO_UpdateScore(id ,score, actualizado));
+    }
+
+    private IEnumerator CO_UpdateScore(int id ,int score, Action<AppUser> actualizado)
+    {
+        // Debug.Log("WS save entre");
+        WWWForm form = new WWWForm();
+
+        form.AddField("id", id);
+        form.AddField("score", score);
+
+        UnityWebRequest ws = UnityWebRequest.Post("http://test.oplever.org.mx/triviasw/api/ws/UpdateScoreAppUser", form);
+
+        yield return ws.SendWebRequest();
+
+        // Debug.Log(ws.downloadHandler.text);
+
+        string json = ws.downloadHandler.text;
+
+        actualizado(JsonUtility.FromJson<AppUser>(json));
+    }
+
 }
 
 [Serializable]
@@ -171,6 +199,15 @@ public class Response
     public bool done = false;
     public string message = "";
     public int id = 0;
+    public string nombre = "";
+    public string email = "";
+    public int edad = 0;
+    public string sexo = "";
+    public string municipio = "";
+    public string estado = "";
+    public string password = "";
+    public int score = 0;
+    public int status = 0;
 }
 
 

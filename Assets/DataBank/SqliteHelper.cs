@@ -30,6 +30,8 @@ namespace DataBank
             db_connection.Close();
         }
 
+        //AppUserDB *********************************************************
+
         public virtual IDataReader getDataByEmailAndPassword(string email, string password)
         {
             Debug.Log(CodistanTag + "This function is not implemnted");
@@ -54,6 +56,52 @@ namespace DataBank
             throw null;
         }
 
+        public virtual void actualizarScore(string score, string id)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual void actualizarStatus(string status, string id)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader getDataByID(string id)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader getDataByEmail(string email)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        //TemasDB ************************************************************
+
+        public virtual IDataReader countTemas()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader allTemas()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader filtroTemas(string filtro)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        //PreguntasDB *********************************************************
+
         public virtual IDataReader countPreguntas()
         {
             Debug.Log(CodistanTag + "This function is not implemnted");
@@ -72,6 +120,26 @@ namespace DataBank
             throw null;
         }
 
+        public virtual IDataReader versionPreguntas()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader filtroPorRubroAndSubrubroPreguntas(string rubro, string subrubro)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader filtroPorTemaPreguntas(string tema)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        //MunicipiosDB *********************************************************
+
         public virtual IDataReader countMunicipios()
         {
             Debug.Log(CodistanTag + "This function is not implemnted");
@@ -79,6 +147,26 @@ namespace DataBank
         }
 
         public virtual IDataReader filtroMunicipios(string filtro)
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        //EstadosDB *********************************************************
+
+        public virtual IDataReader countEstados()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader allEstados()
+        {
+            Debug.Log(CodistanTag + "This function is not implemnted");
+            throw null;
+        }
+
+        public virtual IDataReader filtroEstados(string filtro)
         {
             Debug.Log(CodistanTag + "This function is not implemnted");
             throw null;
