@@ -17,6 +17,7 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_questionsUI = null;
     [SerializeField] private GameObject m_modalUI = null;
     [SerializeField] private GameObject m_modal2UI = null;
+    [SerializeField] private GameObject m_modalNotificacionDeErrorUI = null;
     [SerializeField] private GameObject m_modalCerrarSesionUI = null;
     [SerializeField] private GameObject m_modalPerfilUI = null;
     [SerializeField] private GameObject m_modalAvisoPrivasidadUI = null;
@@ -325,6 +326,11 @@ public class SceneManager : MonoBehaviour
     public void HideModal2()
     {
         m_modal2UI.SetActive(false);
+    }
+
+    public void HideModalNotificacionDeError()
+    {
+        m_modalNotificacionDeErrorUI.SetActive(false);
     }
 
     public void HideModalCerrarSesion()
@@ -1800,6 +1806,11 @@ public class SceneManager : MonoBehaviour
         m_modal2UI.SetActive(true);
     }
 
+    public void enviarNotificacionDeError()
+    {
+        m_modalNotificacionDeErrorUI.SetActive(true);
+    }
+
     public void salirPartida()
     {
         m_modal2UI.SetActive(false);
@@ -1876,6 +1887,36 @@ public class SceneManager : MonoBehaviour
     public void IrUrl()
     {
         Application.OpenURL("http://www.oplever.org.mx/solicitud_informacion/");
+    }
+
+    public void IrAvisoPrivacidadUrl()
+    {
+        Application.OpenURL("https://oplever.org.mx/sitiotransparencia/datospersonales/ap/deoe/trivia.pdf");
+    }
+
+    public void IrTerminosCondicionesUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/");
+    }
+
+    public void IrNormatividadUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/normatividad/");
+    }
+
+    public void IrConvocatoriaUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/");
+    }
+
+    public void IrCodigoElectoralUrl()
+    {
+        Application.OpenURL("https://www.oplever.org.mx/wp-content/uploads/2020/normatividad/codigos/codigo_577.pdf");
+    }
+
+    public void IrOPLEUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/");
     }
 
     public void filtroTema()
