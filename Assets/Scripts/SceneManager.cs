@@ -1889,6 +1889,26 @@ public class SceneManager : MonoBehaviour
         Application.OpenURL("http://www.oplever.org.mx/solicitud_informacion/");
     }
 
+    public void IrNormatividadUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/normatividad/");
+    }
+
+    public void IrConvocatoriaUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/");
+    }
+
+    public void IrCodigoElectoralUrl()
+    {
+        Application.OpenURL("https://www.oplever.org.mx/wp-content/uploads/2020/normatividad/codigos/codigo_577.pdf");
+    }
+
+    public void IrOPLEUrl()
+    {
+        Application.OpenURL("http://www.oplever.org.mx/");
+    }
+
     public void filtroTema()
     {
         iniciarTemas();
