@@ -21,6 +21,9 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private GameObject m_modalPerfilUI = null;
     [SerializeField] private GameObject m_modalAvisoPrivasidadUI = null;
     [SerializeField] private GameObject m_resultadosUI = null;
+    [SerializeField] private GameObject m_modalInsigniasUI = null;
+    [SerializeField] private GameObject m_modalInfoCeroPreguntasUI = null;
+    [SerializeField] private GameObject m_modalTerminosCondicionesUI = null;
 
     [SerializeField] private GameObject m_rubrosUI = null;
     [SerializeField] private GameObject m_subrubroCGUI = null;
@@ -32,7 +35,7 @@ public class SceneManager : MonoBehaviour
 
     [SerializeField] private GameObject m_opc3UI = null;
     [SerializeField] private GameObject m_opc4UI = null;
-
+    
     [SerializeField] private GameObject m_closePartidaButton = null;
     [SerializeField] private GameObject m_inicioPartidaFiltroBtn = null;
 
@@ -56,10 +59,12 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Image m_userIconPerfil = null;
     [SerializeField] private Image m_userIconPerfil2 = null;
     [SerializeField] private Dropdown m_temasInputDropdown = null;
+    [SerializeField] private Scrollbar m_scrollBarTerminosCondiciones = null;
 
     [Header("Perfil")]
     [SerializeField] private Image m_userIconPerfil3 = null;
     [SerializeField] private Text m_nombreUsuarioPerfilTxt = null;
+    [SerializeField] private Text m_puntajeTxt = null;
 
     [Header("Buscar")]
     [SerializeField] private InputField m_buscarInput = null;
@@ -73,11 +78,14 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Dropdown m_municipioInput = null;
     [SerializeField] private InputField m_passwordInput = null;
     [SerializeField] private Toggle m_privacidadToggle = null;
+    [SerializeField] private Toggle m_TerminosCondicionesToggle = null;
     [SerializeField] private Text m_infoErrorTxt = null;
     [SerializeField] private Toggle m_municipiosToggle = null;
     [SerializeField] private Toggle m_estadosToggle = null;
     [SerializeField] private InputField m_filtroEstadoInput = null;
     [SerializeField] private Dropdown m_estadosInput = null;
+    [SerializeField] private Scrollbar m_scrollBarAvisoPrivacidad = null;
+    private bool banderaEstadoSelect = false;
 
     [Header("Preguntas")]    
     [SerializeField] private Text m_preguntaTxt = null;
@@ -95,8 +103,9 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Scrollbar m_scrollBarPregunta = null;    
     private List<Pregunta> comboPreguntas = new List<Pregunta>();
     private int preguntasTotal = 0;
-    private int[] niveles = { 10, 20, 30, 40, 50 };
+    private int[] niveles = { 4, 8, 12, 16, 20 };
     private bool[] statusNiveles = { false, false, false, false, false };
+    private bool[] statusInsignias = { false, false, false, false, false };
     //float inicialYB = 0.0f;
     //float inicialYC = 0.0f;
     //float inicialYD = 0.0f;
@@ -104,6 +113,8 @@ public class SceneManager : MonoBehaviour
     [Header("Respuesta")]
     [SerializeField] private Text m_respuestaTxt = null;
     [SerializeField] private Image m_respuestaImg = null;
+    [SerializeField] private Text m_respuestaCorrectaTxt = null;
+    [SerializeField] private Scrollbar m_scrollBarRespuertaCorrecta = null;
     private string respuestaCorrecta = "";
     private int contadorAciertos = 0;
     private int contadorErrores = 0;
@@ -111,6 +122,8 @@ public class SceneManager : MonoBehaviour
 
     [Header("Nivel")]
     [SerializeField] private Text m_nivelTxt = null;
+    [SerializeField] private Image m_insigniaImage = null;
+    [SerializeField] private Image m_personajeImage = null;
 
     [Header("ResumenPartida")]
     [SerializeField] private Text m_aciertosTxt = null;
@@ -128,6 +141,14 @@ public class SceneManager : MonoBehaviour
     [SerializeField] private Text m_edadModalPerfilTxt = null;
     [SerializeField] private Text m_municipioModalPerfilTxt = null;
     [SerializeField] private Text m_municipioTituloModalPerfilTxt = null;
+
+    [Header("ModalInsignia")]
+    [SerializeField] private Image m_userIconModalInsignia = null;
+    [SerializeField] private Image m_Insignia01ModalInsignia = null;
+    [SerializeField] private Image m_Insignia02ModalInsignia = null;
+    [SerializeField] private Image m_Insignia03ModalInsignia = null;
+    [SerializeField] private Image m_Insignia04ModalInsignia = null;
+    [SerializeField] private Image m_Insignia05ModalInsignia = null;
 
     private NetworkManager m_networkManager = null;
 
@@ -172,7 +193,9 @@ public class SceneManager : MonoBehaviour
         m_infoErrorTxt.text = "";
         m_sexoInput.value = 0;
         m_privacidadToggle.isOn = false;
+        m_TerminosCondicionesToggle.isOn = false;
         m_infoLoginTxt.text = "";
+        m_municipioInput.interactable = false;
 
         m_registerUI.SetActive(true);
         m_loginUI.SetActive(false);
@@ -196,18 +219,21 @@ public class SceneManager : MonoBehaviour
 
         m_nombreUsuarioTxt.text = nombreUsuario;
         m_nombreUsuarioPerfilTxt.text = nombreUsuario;
+        m_puntajeTxt.text = score.ToString();
 
         if (genero == "M")
         {
             m_userIconPerfil.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
             m_userIconPerfil2.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
             m_userIconPerfil3.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
+            m_userIconModalInsignia.sprite = Resources.Load<Sprite>("Sprites/avatar_male");
         }
         else
         {
             m_userIconPerfil.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
             m_userIconPerfil2.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
             m_userIconPerfil3.sprite = Resources.Load<Sprite>("Sprites/avatar_female");
+            m_userIconModalInsignia.sprite = Resources.Load<Sprite>("Sprites/avatar_female"); 
         }
 
         m_registerUI.SetActive(false);
@@ -311,9 +337,24 @@ public class SceneManager : MonoBehaviour
         m_modalPerfilUI.SetActive(false);
     }
 
+    public void HideModalInsignias()
+    {
+        m_modalInsigniasUI.SetActive(false);
+    }
+
     public void HideModalAvisoPrivacidad()
     {
         m_modalAvisoPrivasidadUI.SetActive(false);
+    }
+
+    public void HideModalInfoCeroPreguntas()
+    {
+        m_modalInfoCeroPreguntasUI.SetActive(false);
+    }
+
+    public void HideModalTerminosCondiciones()
+    {
+        m_modalTerminosCondicionesUI.SetActive(false);
     }
 
     public void ShowMunicipiosOrEstados()
@@ -364,6 +405,16 @@ public class SceneManager : MonoBehaviour
         if (m_privacidadToggle.isOn)
         {
             m_modalAvisoPrivasidadUI.SetActive(true);
+            m_scrollBarAvisoPrivacidad.value = 1;
+        }
+    }
+
+    public void ShowModalTerminosCondicionesRegister()
+    {
+        if (m_TerminosCondicionesToggle.isOn)
+        {
+            m_modalTerminosCondicionesUI.SetActive(true);
+            m_scrollBarTerminosCondiciones.value = 1;
         }
     }
     // submit -*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*
@@ -451,6 +502,12 @@ public class SceneManager : MonoBehaviour
             return;
         }
 
+        if (!m_TerminosCondicionesToggle.isOn)
+        {
+            m_infoErrorTxt.text = "* Aceptar los términos y condiciones";
+            return;
+        }
+
         m_infoErrorTxt.text = "Procesando...";
 
         AppUserDB mAppUserDB = new AppUserDB();
@@ -487,6 +544,27 @@ public class SceneManager : MonoBehaviour
         {
             m_infoErrorTxt.text = "El correo electrónico ya está registrado";
         }        
+    }
+
+    public void clearInputMunicipios()
+    {
+        if (m_municipioInput.value != 0)
+        {
+            m_filtroMunicipioInput.text = "";
+        }
+    }
+
+    public void clearInpuEstados()
+    {
+        if (m_estadosInput.value != 0)
+        {
+            m_filtroEstadoInput.text = "";
+            banderaEstadoSelect = true;
+        }
+        else
+        {
+            banderaEstadoSelect = false;
+        }
     }
 
     public void SubmitLogin()
@@ -549,7 +627,7 @@ public class SceneManager : MonoBehaviour
                     if (response.message == "Status 0")
                     {
                         // Debug.Log("C - NE - S0 - probado 2");
-                        m_infoLoginTxt.text = "Este correo electrónico esta bloqueado";
+                        m_infoLoginTxt.text = "Este correo electrónico esta bloqueado, por favor comunicarse al número xxxx-xxxx-xx";
                         AppUser appUser = new AppUser(response.id.ToString(), response.nombre.ToString(), m_emailLoginInput.text, response.edad.ToString(),
                         response.sexo, response.municipio, response.estado, m_passwordLoginInput.text, response.score.ToString(), "SI", response.status.ToString());
                         mAppUserDB.addData(appUser);
@@ -639,12 +717,12 @@ public class SceneManager : MonoBehaviour
     {
         string filtro = m_filtroMunicipioInput.text;
 
-        MunicipioDB municipioDB = new MunicipioDB();
-
-        m_municipioInput.ClearOptions();
+        MunicipioDB municipioDB = new MunicipioDB();        
 
         if (filtro.Length > 0)
         {
+            m_municipioInput.ClearOptions();
+
             IDataReader reader = municipioDB.filtroMunicipios(filtro);
 
             bool coincidencias = false;
@@ -665,7 +743,9 @@ public class SceneManager : MonoBehaviour
             else
             {
                 m_infoErrorTxt.text = "* No existen coincidencias";
-                m_municipioInput.ClearOptions();
+                List<string> m_DropOptions2 = new List<string> { "No existen coincidencias" };
+                m_municipioInput.AddOptions(m_DropOptions2);
+                //m_municipioInput.ClearOptions();
                 m_municipioInput.interactable = false;
             }
 
@@ -684,14 +764,14 @@ public class SceneManager : MonoBehaviour
     {
         string filtroEstado = m_filtroEstadoInput.text;
 
-        EstadoDB estadoDB = new EstadoDB();
-
-        m_estadosInput.ClearOptions();
+        EstadoDB estadoDB = new EstadoDB();        
 
         IDataReader reader = estadoDB.filtroEstados(filtroEstado);
 
         if (filtroEstado.Length > 0)
         {
+            m_estadosInput.ClearOptions();
+
             bool coincidencias = false;
 
             List<string> m_DropOptionsEstadoFiltro = new List<string> { "Seleccione su Entidad Federativa" };
@@ -710,8 +790,10 @@ public class SceneManager : MonoBehaviour
             else
             {
                 m_infoErrorTxt.text = "* No existen coincidencias";
-                m_municipioInput.ClearOptions();
-                m_municipioInput.interactable = true;
+                List<string> m_DropOptionsEstadoFiltro2 = new List<string> { "No existen coincidencias" };
+                m_estadosInput.AddOptions(m_DropOptionsEstadoFiltro2);
+                //m_estadosInput.ClearOptions();
+                m_estadosInput.interactable = false;
             }
 
             reader.Close();
@@ -719,19 +801,23 @@ public class SceneManager : MonoBehaviour
         }
         else
         {
-            reader = estadoDB.allEstados();
-
-            List<string> m_DropOptionsEstados = new List<string> { "Seleccione su Entidad Federativa" };
-
-            m_estadosInput.ClearOptions();
-
-            while (reader.Read())
+            if (!banderaEstadoSelect)
             {
-                m_DropOptionsEstados.Add(reader[0].ToString());
-            }
+                reader = estadoDB.allEstados();
 
-            m_estadosInput.AddOptions(m_DropOptionsEstados);
-            m_estadosInput.interactable = true;
+                List<string> m_DropOptionsEstados = new List<string> { "Seleccione su Entidad Federativa" };
+
+                m_estadosInput.ClearOptions();
+
+                while (reader.Read())
+                {
+                    m_DropOptionsEstados.Add(reader[0].ToString());
+                }
+
+                m_estadosInput.AddOptions(m_DropOptionsEstados);
+                m_estadosInput.interactable = true;
+            }
+            
         }
 
         estadoDB.close();
@@ -914,6 +1000,11 @@ public class SceneManager : MonoBehaviour
         filtroPorRubroAndSubrubroPreguntas("Conocimientos generales", "Código Electoral del Estado de Veracruz");
     }
 
+    public void rubroUnoSubrubroSeis()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos generales", "Reglamento de Elecciones");
+    }
+
     public void rubroDosSubrubroUno()
     {
         filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Presidenta(e) del Consejo Distrital");
@@ -931,7 +1022,12 @@ public class SceneManager : MonoBehaviour
 
     public void rubroDosSubrubroCuatro()
     {
-        filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Vocales");
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Vocal de Organización");
+    }
+
+    public void rubroDosSubrubroCinco()
+    {
+        filtroPorRubroAndSubrubroPreguntas("Conocimientos por cargos de consejos", "Vocal de Capacitación");
     }
 
     public void filtroPorRubroAndSubrubroPreguntas(string rubro, string subrubro)
@@ -950,7 +1046,16 @@ public class SceneManager : MonoBehaviour
         }
         preguntasTotal = comboPreguntas.Count;
 
-        ShowPreguntas();
+        if (preguntasTotal > 0)
+        {
+            ShowPreguntas();
+        }
+        else
+        {
+            m_modalInfoCeroPreguntasUI.SetActive(true);
+        }
+
+        
     }
 
     public void asignarPregunta()
@@ -959,7 +1064,7 @@ public class SceneManager : MonoBehaviour
 
         m_preguntaTxt.text = "¿" + comboPreguntas[numeroPregunta].pregunta + "?";
 
-        m_scrollBarPregunta.value = 1;
+        m_scrollBarPregunta.value = 1;        
 
         if (comboPreguntas[numeroPregunta].pregunta.Length >= 100)
         {
@@ -973,8 +1078,6 @@ public class SceneManager : MonoBehaviour
 
         string numeroRespuestas = comboPreguntas[numeroPregunta].numero_respuestas;
 
-
-
         bitacoraDeResultados += comboPreguntas[numeroPregunta].id;
 
         respuestaCorrecta = comboPreguntas[numeroPregunta].respuesta;
@@ -982,10 +1085,12 @@ public class SceneManager : MonoBehaviour
         if (respuestaCorrecta == "a")
         {
             respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_a;
+            m_respuestaCorrectaTxt.text = respuestaCorrecta;
         }
         if (respuestaCorrecta == "b")
         {
             respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_b;
+            m_respuestaCorrectaTxt.text = respuestaCorrecta;
         }
 
         if (numeroRespuestas == "3")
@@ -993,6 +1098,7 @@ public class SceneManager : MonoBehaviour
             if (respuestaCorrecta == "c")
             {
                 respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_c;
+                m_respuestaCorrectaTxt.text = respuestaCorrecta;
             }
         }
         
@@ -1001,11 +1107,13 @@ public class SceneManager : MonoBehaviour
             if (respuestaCorrecta == "c")
             {
                 respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_c;
+                m_respuestaCorrectaTxt.text = respuestaCorrecta;
             }
 
             if (respuestaCorrecta == "d")
             {
                 respuestaCorrecta = comboPreguntas[numeroPregunta].opcion_d;
+                m_respuestaCorrectaTxt.text = respuestaCorrecta;
             }
         }
 
@@ -1232,6 +1340,7 @@ public class SceneManager : MonoBehaviour
             {
                 m_nivelUI.SetActive(false);
                 m_aciertoUI.SetActive(true);
+                m_scrollBarRespuertaCorrecta.value = 1;
             }
         }
         if (m_opcionBToggle.isOn)
@@ -1260,6 +1369,7 @@ public class SceneManager : MonoBehaviour
             else
             {
                 m_aciertoUI.SetActive(true);
+                m_scrollBarRespuertaCorrecta.value = 1;
             }
         }
         if (m_opcionCToggle.isOn)
@@ -1288,6 +1398,7 @@ public class SceneManager : MonoBehaviour
             else
             {
                 m_aciertoUI.SetActive(true);
+                m_scrollBarRespuertaCorrecta.value = 1;
             }
         }
         if (m_opcionDToggle.isOn)
@@ -1316,6 +1427,7 @@ public class SceneManager : MonoBehaviour
             else
             {
                 m_aciertoUI.SetActive(true);
+                m_scrollBarRespuertaCorrecta.value = 1;
             }
         }
         m_puntosStatus.text = score.ToString();
@@ -1352,30 +1464,52 @@ public class SceneManager : MonoBehaviour
     {
         if (score == niveles[0] && !statusNiveles[0])
         {
-            m_nivelStatus.text = "2";
+            m_nivelStatus.text = "1";
             m_nivelTxt.text = "10";
             statusNiveles[0] = true;
+            statusInsignias[0] = true;
+            //m_insigniaImage.sprite = Resources.LoadAll<Sprite>("Sprites/insignias")[0];
+            m_personajeImage.sprite = Resources.Load<Sprite>("Sprites/personaje01");
             return true;
         }
         if (score == niveles[1] && !statusNiveles[1])
         {
-            m_nivelStatus.text = "3";
+            m_nivelStatus.text = "2";
             m_nivelTxt.text = "20";
             statusNiveles[1] = true;
+            statusInsignias[1] = true;
+            //m_insigniaImage.sprite = Resources.LoadAll<Sprite>("Sprites/insignias")[1];
+            m_personajeImage.sprite = Resources.Load<Sprite>("Sprites/personaje02");
             return true;
         }
         if (score == niveles[2] && !statusNiveles[2])
         {
-            m_nivelStatus.text = "4";
+            m_nivelStatus.text = "3";
             m_nivelTxt.text = "30";
             statusNiveles[2] = true;
+            statusInsignias[2] = true;
+            // m_insigniaImage.sprite = Resources.LoadAll<Sprite>("Sprites/insignias")[2];
+            m_personajeImage.sprite = Resources.Load<Sprite>("Sprites/personaje03");
             return true;
         }
         if (score == niveles[3] && !statusNiveles[3])
         {
-            m_nivelStatus.text = "5";
+            m_nivelStatus.text = "4";
             m_nivelTxt.text = "40";
             statusNiveles[3] = true;
+            statusInsignias[3] = true;
+            // m_insigniaImage.sprite = Resources.LoadAll<Sprite>("Sprites/insignias")[3];
+            m_personajeImage.sprite = Resources.Load<Sprite>("Sprites/personaje04");
+            return true;
+        }
+        if (score == niveles[4] && !statusNiveles[4])
+        {
+            m_nivelStatus.text = "5";
+            m_nivelTxt.text = "50";
+            statusNiveles[4] = true;
+            statusInsignias[4] = true;
+            // m_insigniaImage.sprite = Resources.LoadAll<Sprite>("Sprites/insignias")[4];
+            m_personajeImage.sprite = Resources.Load<Sprite>("Sprites/personaje05");
             return true;
         }
         return false;
@@ -1384,21 +1518,36 @@ public class SceneManager : MonoBehaviour
     public void nivelInicio()
     {
         m_puntosStatus.text = score.ToString();
+        int nivelInicio = 0;
         if (score >= niveles[0] && score < niveles[1])
         {
-            m_nivelStatus.text = "2";
+            m_nivelStatus.text = "1";
+            nivelInicio = 1;
         }
         if (score >= niveles[1] && score < niveles[2])
         {
-            m_nivelStatus.text = "3";
+            m_nivelStatus.text = "2";
+            nivelInicio = 2;
         }
         if (score >= niveles[2] && score < niveles[3])
         {
-            m_nivelStatus.text = "4";
+            m_nivelStatus.text = "3";
+            nivelInicio = 3;
         }
-        if (score >= niveles[3])
+        if (score >= niveles[3] && score < niveles[4])
+        {
+            m_nivelStatus.text = "4";
+            nivelInicio = 4;
+        }
+        if (score >= niveles[4])
         {
             m_nivelStatus.text = "5";
+            nivelInicio = 5;
+        }
+        for(int i=0; i < nivelInicio; i++)
+        {
+            statusInsignias[i] = true;
+            statusNiveles[i] = true;
         }
     }
 
@@ -1485,15 +1634,10 @@ public class SceneManager : MonoBehaviour
 
             if (path.Contains("://") || path.Contains(":///"))
             {
-                Debug.Log("path: 1");
                 UnityWebRequest file = UnityWebRequest.Get(path);
-                Debug.Log("path: 1.1");
                 file.SendWebRequest();
                 while (!file.isDone) { }
-                Debug.Log("path: 1.2");
                 json = file.downloadHandler.text;
-                Debug.Log("path: 1.3");
-                Debug.Log("json: " + json);
             }
             else
             {
@@ -1549,12 +1693,9 @@ public class SceneManager : MonoBehaviour
             while (!file.isDone) { }
             // Debug.Log("path: 1.2");
             json = file.downloadHandler.text;
-            // Debug.Log("path: 1.3");
-            // Debug.Log("json: " + json);
         }
         else
         {
-            // Debug.Log("path: 2");
             json = File.ReadAllText(path);
         }
 
@@ -1706,6 +1847,32 @@ public class SceneManager : MonoBehaviour
         }
     }
 
+    public void ShowModalInsignias()
+    {
+        m_modalInsigniasUI.SetActive(true);
+
+        if (statusInsignias[0])
+        {
+            m_Insignia01ModalInsignia.sprite = Resources.Load<Sprite>("Sprites/insignia01");
+        }
+        if (statusInsignias[1])
+        {
+            m_Insignia02ModalInsignia.sprite = Resources.Load<Sprite>("Sprites/insignia02");
+        }
+        if (statusInsignias[2])
+        {
+            m_Insignia03ModalInsignia.sprite = Resources.Load<Sprite>("Sprites/insignia03");
+        }
+        if (statusInsignias[3])
+        {
+            m_Insignia04ModalInsignia.sprite = Resources.Load<Sprite>("Sprites/insignia04");
+        }
+        if (statusInsignias[4])
+        {
+            m_Insignia05ModalInsignia.sprite = Resources.Load<Sprite>("Sprites/insignia05");
+        }
+    }
+
     public void IrUrl()
     {
         Application.OpenURL("http://www.oplever.org.mx/solicitud_informacion/");
@@ -1756,6 +1923,13 @@ public class SceneManager : MonoBehaviour
             m_temasInputDropdown.ClearOptions();
             m_temasDropdown.SetActive(false);
         }
+    }
+
+    public void ShowModalTerminosCondiciones()
+    {
+        
+        m_modalTerminosCondicionesUI.SetActive(true);
+        m_scrollBarTerminosCondiciones.value = 1;
     }
 
     //public async void saveResultadosSQLite()
