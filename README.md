@@ -1,2 +1,2 @@
-# trivia electoral add
+# trivia electoral app
 
