@@ -1,4 +1,4 @@
-# trivia electoral app
+# Trivia Electoral APP
 
 _Aplicación móvil tipo juego de preguntas ramdon sobre el proceso electoral del estado de Veracruz_
 
@@ -23,14 +23,14 @@ Estas instrucciones te permitirán obtener una copia de la aplicación móvil pa
 
 Para correr el proyecto es necesario tener el entorno de desarrollo configurado correctamente:
 
-- [] Unity 2019.4.14f1
+- [ ] Unity 2019.4.14f1
 
 ### Instalación ⚙️
 
 Ingresa a Unity Hub:
 ```
-Ir a Install
-Agrega una nueva version dando click en el boton ADD
+- Ir a Install
+- Agrega una nueva version dando click en el boton ADD
 Busca y selecciona la version 2019.4.14f1, click en NEXT
 Agrega los paquetes de soporte que necesites, click en NEXT
 Aceptar los terminos y condiciones, click en DONE
@@ -39,7 +39,6 @@ Aceptar los terminos y condiciones, click en DONE
 Clona la aplicación móvil con el nombre de tu nuevo proyecto dentro del directorio **de tu preferencia**, colocando el nombre de tu nuevo proyecto al final del comando de clonar:
 
 ```
-$ cd code
 $ git clone https://github.com/l-osvaldo/OPLEV-APP-trivia-electoral.git nuevo-proyecto
 ```
 
@@ -47,6 +46,7 @@ Regresar a Unity Hub
 Ir a Projects
 Dar click en ADD, buscar la carpeta donde se clono la aplicación
 Click sobre el proyecto en la lista, esperar que se inicie Unity
+```
 
 ## Correr proyecto
 
