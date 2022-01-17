@@ -28,13 +28,13 @@ Para correr el proyecto es necesario tener el entorno de desarrollo configurado 
 ### Instalación ⚙️
 
 Ingresa a Unity Hub:
-```
+
 - Ir a Install
 - Agrega una nueva version dando click en el boton ADD
-Busca y selecciona la version 2019.4.14f1, click en NEXT
-Agrega los paquetes de soporte que necesites, click en NEXT
-Aceptar los terminos y condiciones, click en DONE
-```
+- Busca y selecciona la version 2019.4.14f1, click en NEXT
+- Agrega los paquetes de soporte que necesites, click en NEXT
+ -Aceptar los terminos y condiciones, click en DONE
+
 
 Clona la aplicación móvil con el nombre de tu nuevo proyecto dentro del directorio **de tu preferencia**, colocando el nombre de tu nuevo proyecto al final del comando de clonar:
 
@@ -46,7 +46,7 @@ Regresar a Unity Hub
 Ir a Projects
 Dar click en ADD, buscar la carpeta donde se clono la aplicación
 Click sobre el proyecto en la lista, esperar que se inicie Unity
-```
+
 
 ## Correr proyecto
 
