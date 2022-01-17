@@ -42,10 +42,11 @@ Clona la aplicación móvil con el nombre de tu nuevo proyecto dentro del direct
 $ git clone https://github.com/l-osvaldo/OPLEV-APP-trivia-electoral.git nuevo-proyecto
 ```
 
-Regresar a Unity Hub
-Ir a Projects
-Dar click en ADD, buscar la carpeta donde se clono la aplicación
-Click sobre el proyecto en la lista, esperar que se inicie Unity
+Regresar a Unity Hub:
+
+- Ir a Projects
+- Dar click en ADD, buscar la carpeta donde se clono la aplicación
+- Click sobre el proyecto en la lista, esperar que se inicie Unity
 
 
 ## Correr proyecto
